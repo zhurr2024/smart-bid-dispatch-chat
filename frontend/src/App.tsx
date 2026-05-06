@@ -35,7 +35,7 @@ function RoleGuard({ roles, children }: { roles: string[]; children: React.React
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
+      <BrowserRouter basename="/smart-bid-dispatch-chat">
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route
