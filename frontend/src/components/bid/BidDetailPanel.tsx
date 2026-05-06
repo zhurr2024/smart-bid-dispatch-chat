@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { X, ChevronDown, ChevronUp } from 'lucide-react'
-import { useBid, useBidTracks, useUpdateBidStatus } from '@/hooks/useBids'
+import { useBid, useBidTracks, useUpdateBidStatus, useMarkBidRead } from '@/hooks/useBids'
 import { useOpportunities } from '@/hooks/useOpportunities'
 import { useUiStore } from '@/stores/uiStore'
 import { useAuthStore } from '@/stores/authStore'
@@ -11,9 +11,18 @@ import { OpportunityForm } from '@/components/opportunity/OpportunityForm'
 import { Button } from '@/components/ui/Button'
 import { DispatchModal } from './DispatchModal'
 import { Spinner } from '@/components/ui/Spinner'
-import { BID_STATUS_LABELS } from '@/skills/bid-analysis/priorityEngine'
 import { BidStatus } from '@/types'
 import clsx from 'clsx'
+
+const STATUS_LABELS: Record<string, string> = {
+  PENDING: '待分配',
+  ASSIGNED: '已分配',
+  RECEIVED: '已接收',
+  IN_PROGRESS: '跟进中',
+  OPPORTUNITY: '有商机',
+  NO_OPPORTUNITY: '无商机',
+  COMPLETED: '完成',
+}
 
 interface BidDetailPanelProps { bidId: string }
 
@@ -24,20 +33,24 @@ export const BidDetailPanel: React.FC<BidDetailPanelProps> = ({ bidId }) => {
   const { data: tracks = [] } = useBidTracks(bidId)
   const { data: opps = [] } = useOpportunities({ bidId })
   const updateStatus = useUpdateBidStatus()
+  const markRead = useMarkBidRead()
   const [assignOpen, setAssignOpen] = useState(false)
   const [showOppForm, setShowOppForm] = useState(false)
-  const [noteInput, setNoteInput] = useState('')
 
-  const existingOpp = opps[0]
+  // Auto-mark SSG bids as read when viewed
+  useEffect(() => {
+    if (bid && bid.bidType === 'SSG' && !bid.isRead) {
+      markRead.mutate(bid.id)
+    }
+  }, [bid?.id, bid?.isRead])
+
   const isISG = bid?.bidType === 'ISG'
-  const canAssign = user && ['HQ_OPS', 'SALES_ADMIN'].includes(user.role)
+  const isSSG = bid?.bidType === 'SSG'
+  const canAssign = user?.role === 'SALES_ADMIN' && bid?.status === 'PENDING' && isISG
   const isMyBid = user?.role === 'AR' && user.id === bid?.assignedTo
   const canReceive = isMyBid && bid?.status === 'ASSIGNED'
   const canProgress = isMyBid && bid?.status === 'RECEIVED'
-  const canReport = isMyBid && isISG && ['IN_PROGRESS', 'OPPORTUNITY'].includes(bid?.status || '')
-  const canClose = isMyBid && ['OPPORTUNITY', 'IN_PROGRESS'].includes(bid?.status || '')
-  const isSSG = bid?.bidType === 'SSG'
-  const canMarkRead = isMyBid && isSSG && bid?.status === 'ASSIGNED'
+  const canFeedback = isMyBid && bid?.status === 'IN_PROGRESS'
 
   const doStatus = async (status: BidStatus, note?: string) => {
     if (!bid) return
@@ -75,7 +88,7 @@ export const BidDetailPanel: React.FC<BidDetailPanelProps> = ({ bidId }) => {
             <div className="space-y-2 text-xs text-slate-600">
               <DetailRow label="采购单位" value={bid.purchaserName} />
               <DetailRow label="项目地点" value={bid.location} />
-              <DetailRow label="大区" value={bid.region} />
+              <DetailRow label="战区" value={bid.region} />
               {bid.budget && <DetailRow label="预算金额" value={`约 ${bid.budget} 万元`} highlight />}
               <DetailRow label="发布时间" value={new Date(bid.publishedAt).toLocaleDateString('zh-CN')} />
               {bid.deadlineAt && (
@@ -86,8 +99,9 @@ export const BidDetailPanel: React.FC<BidDetailPanelProps> = ({ bidId }) => {
                 />
               )}
               <DetailRow label="标讯编号" value={bid.bidNo} />
-              <DetailRow label="当前状态" value={BID_STATUS_LABELS[bid.status] || bid.status} />
+              <DetailRow label="当前状态" value={STATUS_LABELS[bid.status] || bid.status} />
               {bid.assignedToUser && <DetailRow label="负责人" value={bid.assignedToUser.name} />}
+              {isSSG && <DetailRow label="已读状态" value={bid.isRead ? '已读' : '未读'} />}
             </div>
           </div>
 
@@ -95,7 +109,7 @@ export const BidDetailPanel: React.FC<BidDetailPanelProps> = ({ bidId }) => {
           <div className="px-4 py-3 border-b border-slate-100">
             <div className="text-xs font-medium text-slate-500 mb-1.5">项目概述</div>
             <p className="text-sm text-slate-700 leading-relaxed">{bid.summary}</p>
-            {bid.keywords?.length > 0 && (
+            {bid.keywords && bid.keywords.length > 0 && (
               <div className="flex flex-wrap gap-1 mt-2">
                 {bid.keywords.map(k => (
                   <span key={k} className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded">{k}</span>
@@ -104,42 +118,36 @@ export const BidDetailPanel: React.FC<BidDetailPanelProps> = ({ bidId }) => {
             )}
           </div>
 
-          {/* Actions */}
-          <div className="px-4 py-3 border-b border-slate-100 flex flex-wrap gap-2">
-            {canAssign && (
-              <Button size="sm" onClick={() => setAssignOpen(true)}>
-                {bid.status === 'PENDING' ? '分配' : '重新分配'}
-              </Button>
-            )}
-            {canReceive && (
-              <Button size="sm" onClick={() => doStatus('RECEIVED')}>接收标讯</Button>
-            )}
-            {canProgress && (
-              <Button size="sm" onClick={() => doStatus('IN_PROGRESS')}>开始跟进</Button>
-            )}
-            {canReport && isISG && (
-              <Button size="sm" variant="secondary" onClick={() => setShowOppForm(f => !f)}>
-                {showOppForm ? '收起' : '报商机'}
-              </Button>
-            )}
-            {canClose && (
-              <>
-                <Button size="sm" variant="secondary" className="!text-emerald-700 !border-emerald-300" onClick={() => doStatus('WON', '赢单')}>赢单</Button>
-                <Button size="sm" variant="secondary" className="!text-red-600 !border-red-300" onClick={() => doStatus('LOST', '输单')}>输单</Button>
-              </>
-            )}
-            {canMarkRead && (
-              <Button size="sm" variant="secondary" onClick={() => doStatus('RECEIVED', '已读')}>标记已读</Button>
-            )}
-          </div>
+          {/* Actions - only for ISG bids (SSG cannot be dispatched) */}
+          {isISG && (
+            <div className="px-4 py-3 border-b border-slate-100 flex flex-wrap gap-2">
+              {canAssign && (
+                <Button size="sm" onClick={() => setAssignOpen(true)}>分配标讯</Button>
+              )}
+              {canReceive && (
+                <Button size="sm" onClick={() => doStatus('RECEIVED')}>接收标讯</Button>
+              )}
+              {canProgress && (
+                <Button size="sm" onClick={() => doStatus('IN_PROGRESS')}>开始跟进</Button>
+              )}
+              {canFeedback && (
+                <>
+                  <Button size="sm" className="!bg-emerald-600 hover:!bg-emerald-700" onClick={() => doStatus('OPPORTUNITY', '有商机')}>有商机</Button>
+                  <Button size="sm" variant="secondary" className="!text-slate-600" onClick={() => doStatus('NO_OPPORTUNITY', '无商机')}>无商机</Button>
+                </>
+              )}
+              {isMyBid && bid.status === 'OPPORTUNITY' && (
+                <Button size="sm" variant="secondary" onClick={() => setShowOppForm(f => !f)}>
+                  {showOppForm ? '收起' : '商机详情'}
+                </Button>
+              )}
+            </div>
+          )}
 
-          {/* Opportunity Form */}
+          {/* Opportunity Form - ISG only */}
           {showOppForm && isISG && (
             <div className="px-4 py-3 border-b border-slate-100">
-              <div className="text-xs font-semibold text-slate-700 mb-2">
-                {existingOpp ? '更新商机' : '上报商机'}
-              </div>
-              <OpportunityForm bid={bid} existing={existingOpp} onSuccess={() => setShowOppForm(false)} />
+              <OpportunityForm bid={bid} existing={opps[0]} onSuccess={() => setShowOppForm(false)} />
             </div>
           )}
 
@@ -151,7 +159,7 @@ export const BidDetailPanel: React.FC<BidDetailPanelProps> = ({ bidId }) => {
         </div>
       </aside>
 
-      <DispatchModal bid={bid} open={assignOpen} onClose={() => setAssignOpen(false)} />
+      {canAssign && <DispatchModal bid={bid} open={assignOpen} onClose={() => setAssignOpen(false)} />}
     </>
   )
 }

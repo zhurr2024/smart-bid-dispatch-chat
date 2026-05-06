@@ -49,10 +49,9 @@ export const BID_STATUS_LABELS = {
   ASSIGNED: '已分配',
   RECEIVED: '已接收',
   IN_PROGRESS: '跟进中',
-  OPPORTUNITY: '商机上报',
-  WON: '赢单',
-  LOST: '输单',
-  ABANDONED: '已放弃',
+  OPPORTUNITY: '有商机',
+  NO_OPPORTUNITY: '无商机',
+  COMPLETED: '完成',
 }
 
 export const TENDER_TYPE_LABELS = {

@@ -23,10 +23,9 @@ const STATUS_MAP: Record<string, string> = {
   '已分配': 'ASSIGNED',
   '已接收': 'RECEIVED',
   '跟进中': 'IN_PROGRESS',
-  '商机': 'OPPORTUNITY',
-  '已赢单': 'WON',
-  '已输单': 'LOST',
-  '已放弃': 'ABANDONED',
+  '有商机': 'OPPORTUNITY',
+  '无商机': 'NO_OPPORTUNITY',
+  '完成': 'COMPLETED',
 }
 
 export function parseIntent(input: string): ParsedIntent {

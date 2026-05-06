@@ -22,16 +22,16 @@ const DEMO_USERS = [
   },
   {
     label: '客户经理(AR)',
-    desc: '负责商机上报和反馈',
+    desc: '跟进标讯，反馈结果',
     email: 'wu.ar@company.com',
     icon: '客',
     iconBg: 'linear-gradient(135deg, #10b981, #059669)',
   },
   {
-    label: '大区Leader',
-    desc: '查看本大区标讯全貌',
-    email: 'sun.rl@company.com',
-    icon: '区',
+    label: '纵队Leader',
+    desc: '查看和下载标讯',
+    email: 'li.tl@company.com',
+    icon: '纵',
     iconBg: 'linear-gradient(135deg, #3b82f6, #2563eb)',
   },
 ]
@@ -42,7 +42,7 @@ export default function LoginPage() {
 
   const doLogin = (u: User) => {
     setUser(u, `mock-token-${u.id}`)
-    navigate('/dashboard')
+    navigate('/bids')
   }
 
   return (

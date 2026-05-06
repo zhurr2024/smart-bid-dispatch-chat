@@ -7,6 +7,7 @@ export interface BidQuery {
   priority?: string
   status?: string
   bidType?: string
+  tenderType?: string
   region?: string
   search?: string
   assignedTo?: string
@@ -24,6 +25,12 @@ export const bidService = {
 
   updateStatus: (id: string, payload: { status: BidStatus; note?: string; userId: string; userName: string }) =>
     api.put<Bid>(`/bids/${id}/status`, payload).then(r => r.data),
+
+  markRead: (id: string) =>
+    api.put<Bid>(`/bids/${id}/read`).then(r => r.data),
+
+  exportBids: (params: BidQuery) =>
+    api.get('/bids/export', { params, responseType: 'blob' }).then(r => r.data),
 
   getTracks: (id: string) =>
     api.get(`/bids/${id}/tracks`).then(r => r.data),

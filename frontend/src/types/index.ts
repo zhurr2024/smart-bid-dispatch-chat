@@ -1,4 +1,4 @@
-export type UserRole = 'HQ_OPS' | 'TEAM_LEADER' | 'SALES_ADMIN' | 'REGION_LEADER' | 'AR'
+export type UserRole = 'HQ_OPS' | 'TEAM_LEADER' | 'SALES_ADMIN' | 'AR'
 export type BidType = 'ISG' | 'SSG'
 export type TenderType = 'INTENT' | 'FORMAL'
 export type Priority = 'HIGH' | 'MEDIUM' | 'LOW'
@@ -8,9 +8,8 @@ export type BidStatus =
   | 'RECEIVED'
   | 'IN_PROGRESS'
   | 'OPPORTUNITY'
-  | 'WON'
-  | 'LOST'
-  | 'ABANDONED'
+  | 'NO_OPPORTUNITY'
+  | 'COMPLETED'
 export type OpportunityStage =
   | 'INITIAL_CONTACT'
   | 'SOLUTION_DISCUSS'
@@ -48,6 +47,7 @@ export interface Bid {
   status: BidStatus
   assignedTo?: string
   assignedToUser?: User
+  isRead?: boolean
   createdBy: string
   createdAt: string
   updatedAt: string
@@ -74,7 +74,7 @@ export interface Opportunity {
   competitors?: string[]
   stage: OpportunityStage
   notes?: string
-  result?: 'WON' | 'LOST' | 'ABANDONED'
+  result?: 'WON' | 'LOST'
   lostReason?: string
   createdAt: string
   updatedAt: string

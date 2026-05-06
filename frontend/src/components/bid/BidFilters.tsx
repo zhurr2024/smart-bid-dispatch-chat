@@ -17,14 +17,17 @@ const STATUSES = [
   { value: 'ASSIGNED', label: '已分配' },
   { value: 'RECEIVED', label: '已接收' },
   { value: 'IN_PROGRESS', label: '跟进中' },
-  { value: 'OPPORTUNITY', label: '商机上报' },
-  { value: 'WON', label: '赢单' },
-  { value: 'LOST', label: '输单' },
-  { value: 'ABANDONED', label: '已放弃' },
+  { value: 'OPPORTUNITY', label: '有商机' },
+  { value: 'NO_OPPORTUNITY', label: '无商机' },
+  { value: 'COMPLETED', label: '完成' },
 ]
 const BID_TYPES = [
   { value: 'ISG', label: 'ISG' },
   { value: 'SSG', label: 'SSG' },
+]
+const TENDER_TYPES = [
+  { value: 'INTENT', label: '意向招标' },
+  { value: 'FORMAL', label: '实时招标' },
 ]
 
 export const BidFilters: React.FC<BidFiltersProps> = ({ onChange }) => {
@@ -48,8 +51,9 @@ export const BidFilters: React.FC<BidFiltersProps> = ({ onChange }) => {
           onChange={set('search')}
         />
       </div>
-      <Select placeholder="全部大区" options={REGIONS.map(r => ({ value: r, label: r }))} onChange={set('region')} className="text-sm py-1.5" />
+      <Select placeholder="全部战区" options={REGIONS.map(r => ({ value: r, label: r }))} onChange={set('region')} className="text-sm py-1.5" />
       <Select placeholder="全部BU" options={BID_TYPES} onChange={set('bidType')} className="text-sm py-1.5" />
+      <Select placeholder="全部招标类型" options={TENDER_TYPES} onChange={set('tenderType')} className="text-sm py-1.5" />
       <Select placeholder="全部优先级" options={PRIORITIES} onChange={set('priority')} className="text-sm py-1.5" />
       <Select placeholder="全部状态" options={STATUSES} onChange={set('status')} className="text-sm py-1.5" />
     </div>

@@ -38,14 +38,13 @@ export function canAdvance(opp: Opportunity): boolean {
 }
 
 /** Get WinLoss status label and color */
-export function getResultLabel(result?: 'WON' | 'LOST' | 'ABANDONED'): {
+export function getResultLabel(result?: 'WON' | 'LOST'): {
   label: string
   colorClass: string
 } {
   switch (result) {
     case 'WON':       return { label: '赢单',   colorClass: 'text-emerald-600' }
     case 'LOST':      return { label: '输单',   colorClass: 'text-red-500' }
-    case 'ABANDONED': return { label: '已放弃', colorClass: 'text-slate-400' }
     default:          return { label: '进行中', colorClass: 'text-indigo-600' }
   }
 }
@@ -111,8 +110,8 @@ export function calcOpportunityHealth(opp: Opportunity): number {
   // Notes present — +10 pts
   if (opp.notes?.trim()) score += 10
 
-  // Closed-lost or abandoned cap
-  if (opp.result === 'LOST' || opp.result === 'ABANDONED') score = Math.min(score, 20)
+  // Closed-lost cap
+  if (opp.result === 'LOST') score = Math.min(score, 20)
 
   return Math.max(0, Math.min(100, score))
 }

@@ -15,8 +15,7 @@ const ROLE_DESC: Record<UserRole, string> = {
   HQ_OPS: '您可以上传标讯、查看全量数据、管理分配',
   SALES_ADMIN: '您可以手工分配标讯、查看跟进状态',
   AR: '查看分配给您的标讯，及时反馈跟进',
-  REGION_LEADER: '查看本区域标讯全貌',
-  TEAM_LEADER: '查看本区域标讯全貌',
+  TEAM_LEADER: '查看本纵队标讯全貌',
 }
 
 const WELCOME_CHIPS = ['🔴 高优标讯', '📋 待分配', '📅 今日新增', '⏰ 即将截止']

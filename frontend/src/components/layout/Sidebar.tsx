@@ -2,7 +2,7 @@ import React from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard, FileText, Upload, BarChart2, Settings,
-  LogOut, ChevronRight, Clock
+  LogOut, ChevronRight, Clock, MessageSquare
 } from 'lucide-react'
 import clsx from 'clsx'
 import { useAuthStore } from '@/stores/authStore'
@@ -13,6 +13,7 @@ export const Sidebar: React.FC = () => {
   const user = useAuthStore(s => s.user)
   const logout = useAuthStore(s => s.logout)
   const collapsed = useUiStore(s => s.sidebarCollapsed)
+  const chatEnabled = useUiStore(s => s.chatEnabled)
   const navigate = useNavigate()
 
   const { data: pendingData } = useBids({ status: 'PENDING', pageSize: 100 })
@@ -24,19 +25,21 @@ export const Sidebar: React.FC = () => {
   }
 
   const navItems = [
-    { to: '/dashboard', icon: LayoutDashboard, label: '标讯广场', roles: null },
     { to: '/bids', icon: FileText, label: '标讯管理', roles: null },
     {
-      to: '/upload', icon: Upload, label: '标讯上传',
+      to: '/chat', icon: MessageSquare, label: '智能问答',
       roles: ['HQ_OPS'],
+      featureFlag: 'chat' as const,
     },
-    { to: '/reports', icon: BarChart2, label: '数据报表', roles: ['HQ_OPS', 'SALES_ADMIN', 'REGION_LEADER', 'TEAM_LEADER'] },
+    { to: '/reports', icon: BarChart2, label: '数据报表', roles: ['HQ_OPS', 'SALES_ADMIN', 'TEAM_LEADER'] },
     { to: '/settings', icon: Settings, label: '系统设置', roles: ['HQ_OPS'] },
   ]
 
-  const visible = navItems.filter(item =>
-    !item.roles || (user && item.roles.includes(user.role))
-  )
+  const visible = navItems.filter(item => {
+    if (item.roles && (!user || !item.roles.includes(user.role))) return false
+    if (item.featureFlag === 'chat' && !chatEnabled) return false
+    return true
+  })
 
   return (
     <aside className={clsx(
@@ -72,7 +75,7 @@ export const Sidebar: React.FC = () => {
             {!collapsed && (
               <span className="flex-1 flex items-center justify-between">
                 {item.label}
-                {item.to === '/dashboard' && pendingCount > 0 && (
+                {item.to === '/bids' && pendingCount > 0 && (
                   <span className="bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                     {pendingCount > 99 ? '99+' : pendingCount}
                   </span>
@@ -110,6 +113,5 @@ const roleLabel: Record<string, string> = {
   HQ_OPS: '运营总部',
   TEAM_LEADER: '纵队Leader',
   SALES_ADMIN: '销管',
-  REGION_LEADER: '大区Leader',
   AR: '客户经理',
 }

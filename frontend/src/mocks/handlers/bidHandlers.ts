@@ -16,6 +16,7 @@ export const bidHandlers = [
     const priority = url.searchParams.get('priority')
     const status = url.searchParams.get('status')
     const bidType = url.searchParams.get('bidType')
+    const tenderType = url.searchParams.get('tenderType')
     const region = url.searchParams.get('region')
     const search = url.searchParams.get('search')
     const assignedTo = url.searchParams.get('assignedTo')
@@ -24,6 +25,7 @@ export const bidHandlers = [
     if (priority) filtered = filtered.filter(b => b.priority === priority)
     if (status) filtered = filtered.filter(b => b.status === status)
     if (bidType) filtered = filtered.filter(b => b.bidType === bidType)
+    if (tenderType) filtered = filtered.filter(b => b.tenderType === tenderType)
     if (region) filtered = filtered.filter(b => b.region === region)
     if (assignedTo) filtered = filtered.filter(b => b.assignedTo === assignedTo)
     if (search) {
@@ -40,10 +42,53 @@ export const bidHandlers = [
     return HttpResponse.json({ data, total, page, pageSize })
   }),
 
+  http.get('/api/v1/bids/export', ({ request }) => {
+    const url = new URL(request.url)
+    const status = url.searchParams.get('status')
+    const bidType = url.searchParams.get('bidType')
+    const tenderType = url.searchParams.get('tenderType')
+    const region = url.searchParams.get('region')
+    const search = url.searchParams.get('search')
+
+    let filtered = [...bids]
+    if (status) filtered = filtered.filter(b => b.status === status)
+    if (bidType) filtered = filtered.filter(b => b.bidType === bidType)
+    if (tenderType) filtered = filtered.filter(b => b.tenderType === tenderType)
+    if (region) filtered = filtered.filter(b => b.region === region)
+    if (search) {
+      const q = search.toLowerCase()
+      filtered = filtered.filter(b =>
+        b.projectName.toLowerCase().includes(q) ||
+        b.purchaserName.toLowerCase().includes(q) ||
+        b.bidNo.toLowerCase().includes(q)
+      )
+    }
+
+    // Generate CSV content
+    const headers = ['标讯编号', '标讯类型', '招标类型', '项目名称', '采购单位', '项目地点', '战区', '预算金额(万)', '状态', '发布时间', '截止时间']
+    const rows = filtered.map(b => [
+      b.bidNo, b.bidType, b.tenderType === 'INTENT' ? '意向招标' : '实时招标',
+      b.projectName, b.purchaserName, b.location, b.region,
+      b.budget?.toString() || '', statusLabelMap[b.status] || b.status,
+      b.publishedAt.slice(0, 10), b.deadlineAt?.slice(0, 10) || ''
+    ])
+    const csv = '\uFEFF' + [headers, ...rows].map(r => r.join(',')).join('\n')
+    return new HttpResponse(csv, {
+      headers: { 'Content-Type': 'text/csv;charset=utf-8', 'Content-Disposition': 'attachment; filename=bids.csv' },
+    })
+  }),
+
   http.get('/api/v1/bids/:id', ({ params }) => {
     const bid = bids.find(b => b.id === params.id)
     if (!bid) return HttpResponse.json({ message: '标讯不存在' }, { status: 404 })
     return HttpResponse.json(bid)
+  }),
+
+  http.put('/api/v1/bids/:id/read', ({ params }) => {
+    const idx = bids.findIndex(b => b.id === params.id)
+    if (idx === -1) return HttpResponse.json({ message: '标讯不存在' }, { status: 404 })
+    bids[idx] = { ...bids[idx], isRead: true, updatedAt: new Date().toISOString() }
+    return HttpResponse.json(bids[idx])
   }),
 
   http.put('/api/v1/bids/:id/assign', async ({ params, request }) => {
@@ -58,7 +103,6 @@ export const bidHandlers = [
       status: 'ASSIGNED',
       updatedAt: new Date().toISOString(),
     }
-    // Add track record
     tracks.push({
       id: 'track-' + Date.now(),
       bidId: bids[idx].id,
@@ -110,8 +154,17 @@ export const bidHandlers = [
 const statusActionMap: Partial<Record<BidStatus, string>> = {
   RECEIVED: '确认接收',
   IN_PROGRESS: '开始跟进',
-  OPPORTUNITY: '商机上报',
-  WON: '赢单确认',
-  LOST: '输单确认',
-  ABANDONED: '标记放弃',
+  OPPORTUNITY: '有商机',
+  NO_OPPORTUNITY: '无商机',
+  COMPLETED: '完成',
+}
+
+const statusLabelMap: Record<string, string> = {
+  PENDING: '待分配',
+  ASSIGNED: '已分配',
+  RECEIVED: '已接收',
+  IN_PROGRESS: '跟进中',
+  OPPORTUNITY: '有商机',
+  NO_OPPORTUNITY: '无商机',
+  COMPLETED: '完成',
 }

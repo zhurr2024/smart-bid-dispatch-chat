@@ -5,16 +5,16 @@ export const reportHandlers = [
   http.get('/api/v1/reports/overview', () => {
     const total = mockBids.length
     const high = mockBids.filter(b => b.priority === 'HIGH').length
-    const won = mockBids.filter(b => b.status === 'WON').length
-    const closed = mockBids.filter(b => ['WON', 'LOST', 'ABANDONED'].includes(b.status)).length
+    const completed = mockBids.filter(b => b.status === 'COMPLETED').length
+    const closed = mockBids.filter(b => ['OPPORTUNITY', 'NO_OPPORTUNITY', 'COMPLETED'].includes(b.status)).length
     const pending = mockBids.filter(b => b.status === 'PENDING').length
     return HttpResponse.json({
       totalBids: total,
       highPriorityBids: high,
       avgResponseHours: 18.5,
-      conversionRate: closed > 0 ? Math.round((won / closed) * 100) : 0,
+      conversionRate: closed > 0 ? Math.round((completed / closed) * 100) : 0,
       pendingBids: pending,
-      wonBids: won,
+      wonBids: completed,
       intentBids: mockBids.filter(b => b.tenderType === 'INTENT').length,
       formalBids: mockBids.filter(b => b.tenderType === 'FORMAL').length,
     })
@@ -37,7 +37,7 @@ export const reportHandlers = [
       regions.map(region => ({
         region,
         count: mockBids.filter(b => b.region === region).length,
-        won: mockBids.filter(b => b.region === region && b.status === 'WON').length,
+        won: mockBids.filter(b => b.region === region && b.status === 'COMPLETED').length,
       }))
     )
   }),
@@ -46,9 +46,9 @@ export const reportHandlers = [
     return HttpResponse.json([
       { stage: '标讯总量', count: mockBids.length },
       { stage: '已分配', count: mockBids.filter(b => b.status !== 'PENDING').length },
-      { stage: '跟进中', count: mockBids.filter(b => ['IN_PROGRESS', 'OPPORTUNITY', 'WON', 'LOST'].includes(b.status)).length },
-      { stage: '商机上报', count: mockBids.filter(b => ['OPPORTUNITY', 'WON', 'LOST'].includes(b.status)).length },
-      { stage: '赢单', count: mockBids.filter(b => b.status === 'WON').length },
+      { stage: '跟进中', count: mockBids.filter(b => ['IN_PROGRESS', 'OPPORTUNITY', 'NO_OPPORTUNITY', 'COMPLETED'].includes(b.status)).length },
+      { stage: '有商机', count: mockBids.filter(b => ['OPPORTUNITY', 'COMPLETED'].includes(b.status)).length },
+      { stage: '完成', count: mockBids.filter(b => b.status === 'COMPLETED').length },
     ])
   }),
 ]

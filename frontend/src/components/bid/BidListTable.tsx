@@ -29,10 +29,9 @@ export const BidListTable: React.FC<BidListTableProps> = ({ filters }) => {
     ASSIGNED: { label: '已分配', cls: 'bg-blue-50 text-blue-700' },
     RECEIVED: { label: '已接收', cls: 'bg-sky-50 text-sky-700' },
     IN_PROGRESS: { label: '跟进中', cls: 'bg-indigo-50 text-indigo-700' },
-    OPPORTUNITY: { label: '商机上报', cls: 'bg-purple-50 text-purple-700' },
-    WON: { label: '赢单', cls: 'bg-emerald-50 text-emerald-700' },
-    LOST: { label: '输单', cls: 'bg-red-50 text-red-700' },
-    ABANDONED: { label: '已放弃', cls: 'bg-slate-100 text-slate-400' },
+    OPPORTUNITY: { label: '有商机', cls: 'bg-emerald-50 text-emerald-700' },
+    NO_OPPORTUNITY: { label: '无商机', cls: 'bg-slate-100 text-slate-500' },
+    COMPLETED: { label: '完成', cls: 'bg-purple-50 text-purple-700' },
   }
 
   if (isLoading) return (
@@ -47,7 +46,7 @@ export const BidListTable: React.FC<BidListTableProps> = ({ filters }) => {
         <table className="w-full text-sm border-collapse">
           <thead className="sticky top-0 bg-slate-50 z-10">
             <tr className="border-b border-slate-200">
-              {['标讯编号', 'BU', '类型', '项目名称', '采购单位', '大区', '预算(万)', '优先级', '状态', '截止时间', '操作'].map(h => (
+              {['标讯编号', 'BU', '类型', '项目名称', '采购单位', '战区', '预算(万)', '优先级', '状态', '截止时间', '操作'].map(h => (
                 <th key={h} className="text-left text-xs font-medium text-slate-500 px-4 py-3 whitespace-nowrap">{h}</th>
               ))}
             </tr>
@@ -72,7 +71,12 @@ export const BidListTable: React.FC<BidListTableProps> = ({ filters }) => {
                   <td className="px-4 py-3"><BidTypeBadge bidType={bid.bidType} /></td>
                   <td className="px-4 py-3"><TenderTypeBadge tenderType={bid.tenderType} /></td>
                   <td className="px-4 py-3 max-w-xs">
-                    <div className="truncate font-medium text-slate-900" title={bid.projectName}>{bid.projectName}</div>
+                    <div className="flex items-center gap-1.5">
+                      {bid.bidType === 'SSG' && !bid.isRead && (
+                        <span className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0" title="未读" />
+                      )}
+                      <span className="truncate font-medium text-slate-900" title={bid.projectName}>{bid.projectName}</span>
+                    </div>
                   </td>
                   <td className="px-4 py-3 text-slate-600 max-w-xs">
                     <div className="truncate">{bid.purchaserName}</div>

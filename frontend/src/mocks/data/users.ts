@@ -41,22 +41,6 @@ export const mockUsers: User[] = [
     isActive: true,
   },
   {
-    id: 'user-rl-001',
-    name: '孙大区',
-    email: 'sun.rl@company.com',
-    role: 'REGION_LEADER',
-    region: '华南',
-    isActive: true,
-  },
-  {
-    id: 'user-rl-002',
-    name: '周大区',
-    email: 'zhou.rl@company.com',
-    role: 'REGION_LEADER',
-    region: '华东',
-    isActive: true,
-  },
-  {
     id: 'user-ar-001',
     name: '吴客经',
     email: 'wu.ar@company.com',

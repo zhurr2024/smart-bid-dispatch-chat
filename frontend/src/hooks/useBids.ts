@@ -53,3 +53,29 @@ export const useUpdateBidStatus = () => {
     },
   })
 }
+
+export const useMarkBidRead = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => bidService.markRead(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['bids'] })
+      qc.invalidateQueries({ queryKey: ['bid'] })
+    },
+  })
+}
+
+export const useExportBids = () => {
+  return useMutation({
+    mutationFn: (params: BidQuery) => bidService.exportBids(params),
+    onSuccess: (data) => {
+      const blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `标讯数据_${new Date().toISOString().slice(0, 10)}.xlsx`
+      a.click()
+      URL.revokeObjectURL(url)
+    },
+  })
+}

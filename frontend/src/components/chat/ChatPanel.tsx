@@ -20,7 +20,6 @@ export const ChatPanel: React.FC = () => {
   const query = React.useMemo(() => {
     const base: Record<string, string> = {}
     if (user?.role === 'AR') base.assignedTo = user.id
-    if (user?.role === 'REGION_LEADER') base.region = user.region || ''
     if (user?.role === 'TEAM_LEADER') base.region = user.region || ''
 
     if (search) {
