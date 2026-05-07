@@ -80,25 +80,29 @@ export default function BidsPage() {
       <BidListTable filters={filters} />
 
       {/* Upload Modal */}
-      <Modal open={showUpload} onClose={closeUploadModal} title="上传标讯">
-        <div className="space-y-4 min-w-[600px]">
+      <Modal open={showUpload} onClose={closeUploadModal} title="上传标讯" width="max-w-xl">
+        <div className="space-y-4">
           {uploadSuccess ? (
             <div className="flex flex-col items-center py-8 text-emerald-600">
-              <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center mb-3">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+              <div className="w-14 h-14 rounded-full bg-emerald-100 flex items-center justify-center mb-3">
+                <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
               </div>
               <div className="font-semibold text-lg">上传成功！</div>
               <div className="text-sm text-slate-500 mt-1">已导入 {uploadRows.length} 条标讯数据</div>
-              <Button className="mt-4" variant="secondary" onClick={closeUploadModal}>
+              <Button className="mt-5" variant="secondary" onClick={closeUploadModal}>
                 关闭
               </Button>
             </div>
           ) : (
             <>
               <UploadDropzone onData={setUploadRows} />
-              <UploadPreview rows={uploadRows} />
               {uploadRows.length > 0 && (
-                <div className="flex justify-end">
+                <div className="max-h-48 overflow-y-auto rounded-lg border border-slate-200">
+                  <UploadPreview rows={uploadRows} />
+                </div>
+              )}
+              {uploadRows.length > 0 && (
+                <div className="flex justify-end pt-2">
                   <Button onClick={handleUpload} loading={uploading}>
                     确认上传 {uploadRows.length} 条标讯
                   </Button>

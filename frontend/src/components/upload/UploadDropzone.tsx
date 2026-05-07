@@ -41,12 +41,12 @@ export const UploadDropzone: React.FC<UploadDropzoneProps> = ({ onData }) => {
     <div className="space-y-3">
       <div
         {...getRootProps()}
-        className={`border-2 border-dashed rounded-xl p-12 text-center cursor-pointer transition-colors ${
-          isDragActive ? 'border-indigo-400 bg-indigo-50' : 'border-slate-300 hover:border-indigo-400 hover:bg-slate-50'
+        className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all ${
+          isDragActive ? 'border-indigo-400 bg-indigo-50 scale-[1.01]' : 'border-slate-300 hover:border-indigo-400 hover:bg-slate-50'
         }`}
       >
         <input {...getInputProps()} />
-        <Upload size={40} className={`mx-auto mb-3 ${isDragActive ? 'text-indigo-500' : 'text-slate-400'}`} />
+        <Upload size={32} className={`mx-auto mb-2 ${isDragActive ? 'text-indigo-500' : 'text-slate-400'}`} />
         <div className="font-medium text-slate-700 mb-1">
           {isDragActive ? '松开上传文件' : '拖放 Excel 文件到此处'}
         </div>
