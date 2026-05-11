@@ -79,3 +79,26 @@ export const useExportBids = () => {
     },
   })
 }
+
+export const useDispatchBids = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (ids: string[]) => bidService.dispatchBids(ids),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['bids'] })
+      qc.invalidateQueries({ queryKey: ['bid'] })
+    },
+  })
+}
+
+export const useBatchAssignBids = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ ids, itcode }: { ids: string[]; itcode: string }) =>
+      bidService.batchAssign(ids, itcode),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['bids'] })
+      qc.invalidateQueries({ queryKey: ['bid'] })
+    },
+  })
+}

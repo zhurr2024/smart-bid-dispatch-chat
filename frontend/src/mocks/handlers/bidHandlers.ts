@@ -18,8 +18,10 @@ export const bidHandlers = [
     const bidType = url.searchParams.get('bidType')
     const tenderType = url.searchParams.get('tenderType')
     const region = url.searchParams.get('region')
+    const industry = url.searchParams.get('industry')
     const search = url.searchParams.get('search')
     const assignedTo = url.searchParams.get('assignedTo')
+    const opportunityNo = url.searchParams.get('opportunityNo')
 
     let filtered = [...bids]
     if (priority) filtered = filtered.filter(b => b.priority === priority)
@@ -27,7 +29,12 @@ export const bidHandlers = [
     if (bidType) filtered = filtered.filter(b => b.bidType === bidType)
     if (tenderType) filtered = filtered.filter(b => b.tenderType === tenderType)
     if (region) filtered = filtered.filter(b => b.region === region)
+    if (industry) filtered = filtered.filter(b => b.industry === industry)
     if (assignedTo) filtered = filtered.filter(b => b.assignedTo === assignedTo)
+    if (opportunityNo) {
+      const q = opportunityNo.toLowerCase()
+      filtered = filtered.filter(b => b.opportunityNo?.toLowerCase().includes(q))
+    }
     if (search) {
       const q = search.toLowerCase()
       filtered = filtered.filter(b =>
@@ -149,6 +156,61 @@ export const bidHandlers = [
     tracks.push(track)
     return HttpResponse.json(track)
   }),
+
+  // PUT /api/v1/bids/dispatch — batch dispatch (HQ_OPS)
+  http.put('/api/v1/bids/dispatch', async ({ request }) => {
+    const body = await request.json() as { ids: string[] }
+    const results: Bid[] = []
+    for (const id of body.ids) {
+      const idx = bids.findIndex(b => b.id === id)
+      if (idx === -1) continue
+      // Simulate auto-dispatch: if bid has a region match, mark ASSIGNED; otherwise PENDING
+      const hasAutoMatch = bids[idx].assignedTo != null
+      bids[idx] = {
+        ...bids[idx],
+        status: hasAutoMatch ? 'ASSIGNED' : 'PENDING',
+        updatedAt: new Date().toISOString(),
+      }
+      tracks.push({
+        id: 'track-' + Date.now() + '-' + id,
+        bidId: id,
+        userId: 'system',
+        userName: '系统',
+        action: hasAutoMatch ? '自动分配成功' : '下发待分配',
+        status: bids[idx].status,
+        createdAt: new Date().toISOString(),
+      })
+      results.push(bids[idx])
+    }
+    return HttpResponse.json({ data: results, count: results.length })
+  }),
+
+  // PUT /api/v1/bids/batch-assign — batch assign by itcode (SALES_ADMIN)
+  http.put('/api/v1/bids/batch-assign', async ({ request }) => {
+    const body = await request.json() as { ids: string[]; itcode: string }
+    const results: Bid[] = []
+    for (const id of body.ids) {
+      const idx = bids.findIndex(b => b.id === id)
+      if (idx === -1) continue
+      bids[idx] = {
+        ...bids[idx],
+        assignedTo: body.itcode,
+        status: 'ASSIGNED',
+        updatedAt: new Date().toISOString(),
+      }
+      tracks.push({
+        id: 'track-' + Date.now() + '-' + id,
+        bidId: id,
+        userId: body.itcode,
+        userName: body.itcode,
+        action: '手工分配标讯',
+        status: 'ASSIGNED',
+        createdAt: new Date().toISOString(),
+      })
+      results.push(bids[idx])
+    }
+    return HttpResponse.json({ data: results, count: results.length })
+  }),
 ]
 
 const statusActionMap: Partial<Record<BidStatus, string>> = {
@@ -160,6 +222,7 @@ const statusActionMap: Partial<Record<BidStatus, string>> = {
 }
 
 const statusLabelMap: Record<string, string> = {
+  UPLOADED: '已上传',
   PENDING: '待分配',
   ASSIGNED: '已分配',
   RECEIVED: '已接收',

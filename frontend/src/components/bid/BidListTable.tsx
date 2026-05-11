@@ -1,7 +1,6 @@
 import React from 'react'
 import { useBids } from '@/hooks/useBids'
 import { useUiStore } from '@/stores/uiStore'
-import { PriorityBadge } from './PriorityBadge'
 import { BidTypeBadge, TenderTypeBadge } from './BidTypeBadge'
 import { Spinner } from '@/components/ui/Spinner'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
@@ -10,11 +9,13 @@ import clsx from 'clsx'
 
 interface BidListTableProps {
   filters: Record<string, string>
+  selectedIds?: string[]
+  onSelectionChange?: (ids: string[]) => void
 }
 
 const PAGE_SIZE = 10
 
-export const BidListTable: React.FC<BidListTableProps> = ({ filters }) => {
+export const BidListTable: React.FC<BidListTableProps> = ({ filters, selectedIds = [], onSelectionChange }) => {
   const [page, setPage] = React.useState(1)
   const setSelectedBidId = useUiStore(s => s.setSelectedBidId)
   const selectedBidId = useUiStore(s => s.selectedBidId)
@@ -25,6 +26,7 @@ export const BidListTable: React.FC<BidListTableProps> = ({ filters }) => {
   const totalPages = Math.ceil(total / PAGE_SIZE)
 
   const statusMap: Record<string, { label: string; cls: string }> = {
+    UPLOADED: { label: '已上传', cls: 'bg-amber-50 text-amber-700' },
     PENDING: { label: '待分配', cls: 'bg-slate-100 text-slate-600' },
     ASSIGNED: { label: '已分配', cls: 'bg-blue-50 text-blue-700' },
     RECEIVED: { label: '已接收', cls: 'bg-sky-50 text-sky-700' },
@@ -32,6 +34,28 @@ export const BidListTable: React.FC<BidListTableProps> = ({ filters }) => {
     OPPORTUNITY: { label: '有商机', cls: 'bg-emerald-50 text-emerald-700' },
     NO_OPPORTUNITY: { label: '无商机', cls: 'bg-slate-100 text-slate-500' },
     COMPLETED: { label: '完成', cls: 'bg-purple-50 text-purple-700' },
+  }
+
+  const allChecked = bids.length > 0 && bids.every(b => selectedIds.includes(b.id))
+  const someChecked = bids.some(b => selectedIds.includes(b.id))
+
+  const toggleAll = () => {
+    if (!onSelectionChange) return
+    if (allChecked) {
+      onSelectionChange(selectedIds.filter(id => !bids.find(b => b.id === id)))
+    } else {
+      const newIds = [...new Set([...selectedIds, ...bids.map(b => b.id)])]
+      onSelectionChange(newIds)
+    }
+  }
+
+  const toggleOne = (id: string) => {
+    if (!onSelectionChange) return
+    if (selectedIds.includes(id)) {
+      onSelectionChange(selectedIds.filter(i => i !== id))
+    } else {
+      onSelectionChange([...selectedIds, id])
+    }
   }
 
   if (isLoading) return (
@@ -46,7 +70,16 @@ export const BidListTable: React.FC<BidListTableProps> = ({ filters }) => {
         <table className="w-full text-sm border-collapse">
           <thead className="sticky top-0 bg-slate-50 z-10">
             <tr className="border-b border-slate-200">
-              {['标讯编号', 'BU', '类型', '项目名称', '采购单位', '战区', '预算(万)', '优先级', '状态', '截止时间', '操作'].map(h => (
+              <th className="text-left text-xs font-medium text-slate-500 px-4 py-3 w-10">
+                <input
+                  type="checkbox"
+                  checked={allChecked}
+                  ref={el => { if (el) el.indeterminate = someChecked && !allChecked }}
+                  onChange={toggleAll}
+                  className="rounded border-slate-300 cursor-pointer"
+                />
+              </th>
+              {['标讯编号', 'BU', '类型', '项目名称', '采购单位', '战区', '主行业', '预算(万)', '关联商机编号', '状态', '截止时间', '操作'].map(h => (
                 <th key={h} className="text-left text-xs font-medium text-slate-500 px-4 py-3 whitespace-nowrap">{h}</th>
               ))}
             </tr>
@@ -55,6 +88,7 @@ export const BidListTable: React.FC<BidListTableProps> = ({ filters }) => {
             {bids.map(bid => {
               const s = statusMap[bid.status] || { label: bid.status, cls: 'bg-slate-100 text-slate-600' }
               const isSelected = selectedBidId === bid.id
+              const isChecked = selectedIds.includes(bid.id)
               const daysLeft = bid.deadlineAt
                 ? Math.floor((new Date(bid.deadlineAt).getTime() - Date.now()) / 86400000)
                 : null
@@ -67,6 +101,14 @@ export const BidListTable: React.FC<BidListTableProps> = ({ filters }) => {
                     isSelected ? 'bg-indigo-50' : 'hover:bg-slate-50'
                   )}
                 >
+                  <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
+                    <input
+                      type="checkbox"
+                      checked={isChecked}
+                      onChange={() => toggleOne(bid.id)}
+                      className="rounded border-slate-300 cursor-pointer"
+                    />
+                  </td>
                   <td className="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">{bid.bidNo}</td>
                   <td className="px-4 py-3"><BidTypeBadge bidType={bid.bidType} /></td>
                   <td className="px-4 py-3"><TenderTypeBadge tenderType={bid.tenderType} /></td>
@@ -82,10 +124,11 @@ export const BidListTable: React.FC<BidListTableProps> = ({ filters }) => {
                     <div className="truncate">{bid.purchaserName}</div>
                   </td>
                   <td className="px-4 py-3 text-slate-600 whitespace-nowrap">{bid.region}</td>
+                  <td className="px-4 py-3 text-slate-600 whitespace-nowrap">{bid.industry || '—'}</td>
                   <td className="px-4 py-3 text-slate-700 font-medium whitespace-nowrap">
                     {bid.budget ? bid.budget : '—'}
                   </td>
-                  <td className="px-4 py-3"><PriorityBadge priority={bid.priority} /></td>
+                  <td className="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">{bid.opportunityNo || '—'}</td>
                   <td className="px-4 py-3">
                     <span className={clsx('text-xs px-2 py-0.5 rounded-full font-medium', s.cls)}>{s.label}</span>
                   </td>
@@ -117,7 +160,7 @@ export const BidListTable: React.FC<BidListTableProps> = ({ filters }) => {
 
       {/* Pagination */}
       <div className="flex items-center justify-between px-4 py-3 border-t border-slate-200 bg-white flex-shrink-0">
-        <span className="text-xs text-slate-500">共 {total} 条</span>
+        <span className="text-xs text-slate-500">共 {total} 条{selectedIds.length > 0 && `，已选 ${selectedIds.length} 条`}</span>
         <div className="flex items-center gap-2">
           <Button size="sm" variant="secondary" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}>
             <ChevronLeft size={14} />

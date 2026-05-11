@@ -4,7 +4,6 @@ import { useBid, useBidTracks, useUpdateBidStatus, useMarkBidRead } from '@/hook
 import { useOpportunities } from '@/hooks/useOpportunities'
 import { useUiStore } from '@/stores/uiStore'
 import { useAuthStore } from '@/stores/authStore'
-import { PriorityBadge } from './PriorityBadge'
 import { BidTypeBadge, TenderTypeBadge } from './BidTypeBadge'
 import { TrackTimeline } from '@/components/opportunity/TrackTimeline'
 import { OpportunityForm } from '@/components/opportunity/OpportunityForm'
@@ -15,6 +14,7 @@ import { BidStatus } from '@/types'
 import clsx from 'clsx'
 
 const STATUS_LABELS: Record<string, string> = {
+  UPLOADED: '已上传',
   PENDING: '待分配',
   ASSIGNED: '已分配',
   RECEIVED: '已接收',
@@ -72,7 +72,6 @@ export const BidDetailPanel: React.FC<BidDetailPanelProps> = ({ bidId }) => {
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 flex-shrink-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <PriorityBadge priority={bid.priority} />
             <BidTypeBadge bidType={bid.bidType} />
             <TenderTypeBadge tenderType={bid.tenderType} />
           </div>
@@ -89,6 +88,7 @@ export const BidDetailPanel: React.FC<BidDetailPanelProps> = ({ bidId }) => {
               <DetailRow label="采购单位" value={bid.purchaserName} />
               <DetailRow label="项目地点" value={bid.location} />
               <DetailRow label="战区" value={bid.region} />
+              {bid.industry && <DetailRow label="主行业" value={bid.industry} />}
               {bid.budget && <DetailRow label="预算金额" value={`约 ${bid.budget} 万元`} highlight />}
               <DetailRow label="发布时间" value={new Date(bid.publishedAt).toLocaleDateString('zh-CN')} />
               {bid.deadlineAt && (
@@ -101,6 +101,7 @@ export const BidDetailPanel: React.FC<BidDetailPanelProps> = ({ bidId }) => {
               <DetailRow label="标讯编号" value={bid.bidNo} />
               <DetailRow label="当前状态" value={STATUS_LABELS[bid.status] || bid.status} />
               {bid.assignedToUser && <DetailRow label="负责人" value={bid.assignedToUser.name} />}
+              {bid.opportunityNo && <DetailRow label="商机编号" value={bid.opportunityNo} />}
               {isSSG && <DetailRow label="已读状态" value={bid.isRead ? '已读' : '未读'} />}
             </div>
           </div>

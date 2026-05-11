@@ -3,6 +3,7 @@ export type BidType = 'ISG' | 'SSG'
 export type TenderType = 'INTENT' | 'FORMAL'
 export type Priority = 'HIGH' | 'MEDIUM' | 'LOW'
 export type BidStatus =
+  | 'UPLOADED'
   | 'PENDING'
   | 'ASSIGNED'
   | 'RECEIVED'
@@ -37,6 +38,7 @@ export interface Bid {
   purchaserName: string
   location: string
   region: string
+  industry?: string
   budget?: number
   publishedAt: string
   deadlineAt?: string
@@ -44,6 +46,7 @@ export interface Bid {
   keywords?: string[]
   source?: string
   priority: Priority
+  opportunityNo?: string
   status: BidStatus
   assignedTo?: string
   assignedToUser?: User

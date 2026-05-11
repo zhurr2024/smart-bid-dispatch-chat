@@ -9,8 +9,10 @@ export interface BidQuery {
   bidType?: string
   tenderType?: string
   region?: string
+  industry?: string
   search?: string
   assignedTo?: string
+  opportunityNo?: string
 }
 
 export const bidService = {
@@ -37,4 +39,10 @@ export const bidService = {
 
   addTrack: (id: string, payload: object) =>
     api.post(`/bids/${id}/tracks`, payload).then(r => r.data),
+
+  dispatchBids: (ids: string[]) =>
+    api.put('/bids/dispatch', { ids }).then(r => r.data),
+
+  batchAssign: (ids: string[], itcode: string) =>
+    api.put('/bids/batch-assign', { ids, itcode }).then(r => r.data),
 }
