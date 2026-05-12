@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Upload, Download, FileDown, Send, Users } from 'lucide-react'
+import { Upload, Download, FileDown } from 'lucide-react'
 import { BidFilters } from '@/components/bid/BidFilters'
 import { BidListTable } from '@/components/bid/BidListTable'
 import { Button } from '@/components/ui/Button'
@@ -7,7 +7,7 @@ import { Modal } from '@/components/ui/Modal'
 import { UploadDropzone } from '@/components/upload/UploadDropzone'
 import { UploadPreview } from '@/components/upload/UploadPreview'
 import { useAuthStore } from '@/stores/authStore'
-import { useExportBids, useDispatchBids, useBatchAssignBids } from '@/hooks/useBids'
+import { useExportBids } from '@/hooks/useBids'
 import { BidQuery } from '@/services/bidService'
 
 export default function BidsPage() {
@@ -17,12 +17,8 @@ export default function BidsPage() {
   const [uploading, setUploading] = useState(false)
   const [uploadSuccess, setUploadSuccess] = useState(false)
   const [selectedIds, setSelectedIds] = useState<string[]>([])
-  const [showBatchAssign, setShowBatchAssign] = useState(false)
-  const [batchItcode, setBatchItcode] = useState('')
   const user = useAuthStore(s => s.user)
   const exportMutation = useExportBids()
-  const dispatchMutation = useDispatchBids()
-  const batchAssignMutation = useBatchAssignBids()
 
   const handleUpload = async () => {
     if (!uploadRows.length) return
@@ -37,9 +33,9 @@ export default function BidsPage() {
   }
 
   const handleDownloadTemplate = () => {
-    const headers = ['标讯编号', '标讯类型', '招标类型', '项目名称', '采购单位', '项目地点', '战区', '主行业', '预算金额', '发布时间', '截止时间', '项目概述', '关键词', '信息来源']
+    const headers = ['标讯编号', '标讯类型', '招标类型', '项目名称', '采购单位', '项目地点', '战区', '预算金额', '发布时间', '截止时间', '项目概述', '关键词', '信息来源']
     const csvContent = headers.join(',') + '\n' +
-      ['ISG-2024-0001', 'ISG', '意向招标', '示例项目', '示例采购方', '广东省广州市', '广东', '政府', '500', '2024-03-01', '2024-03-15', '项目概述示例', '医疗,IT', '政府采购网'].join(',')
+      ['ISG-2024-0001', 'ISG', '意向招标', '示例项目', '示例采购方', '广东省广州市', '华南', '500', '2024-03-01', '2024-03-15', '项目概述示例', '医疗,IT', '政府采购网'].join(',')
     const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
@@ -55,33 +51,14 @@ export default function BidsPage() {
     setUploadSuccess(false)
   }
 
-  const handleDispatch = () => {
-    if (selectedIds.length === 0) return
-    dispatchMutation.mutate(selectedIds, {
-      onSuccess: () => setSelectedIds([]),
-    })
-  }
-
-  const handleBatchAssign = () => {
-    if (selectedIds.length === 0 || !batchItcode.trim()) return
-    batchAssignMutation.mutate(
-      { ids: selectedIds, itcode: batchItcode.trim() },
-      {
-        onSuccess: () => {
-          setSelectedIds([])
-          setBatchItcode('')
-          setShowBatchAssign(false)
-        },
-      }
-    )
-  }
-
   return (
     <div className="h-full flex flex-col">
       <div className="px-6 py-4 bg-white border-b border-slate-200 flex-shrink-0 flex items-center justify-between">
         <div>
           <h1 className="font-semibold text-slate-900">标讯管理</h1>
-          <p className="text-xs text-slate-500 mt-0.5">查看、筛选和管理全部标讯</p>
+          <p className="text-xs text-slate-500 mt-0.5">
+            {user?.role === 'PRODUCT_MGR' ? '查看与您负责产品相关的标讯及销售跟进情况' : '查看、筛选和管理全部标讯'}
+          </p>
         </div>
         <div className="flex items-center gap-2">
           {user?.role === 'HQ_OPS' && (
@@ -94,52 +71,23 @@ export default function BidsPage() {
                 <Upload size={14} />
                 上传标讯
               </Button>
-              <Button size="sm" onClick={handleDispatch} loading={dispatchMutation.isPending} disabled={selectedIds.length === 0}>
-                <Send size={14} />
-                下发标讯{selectedIds.length > 0 && ` (${selectedIds.length})`}
-              </Button>
             </>
           )}
-          {user?.role === 'SALES_ADMIN' && (
-            <Button size="sm" onClick={() => setShowBatchAssign(true)} disabled={selectedIds.length === 0}>
-              <Users size={14} />
-              批量分配{selectedIds.length > 0 && ` (${selectedIds.length})`}
-            </Button>
-          )}
-          <Button variant="secondary" size="sm" onClick={handleDownload} loading={exportMutation.isPending}>
+          <Button size="sm" onClick={handleDownload} loading={exportMutation.isPending}>
             <Download size={14} />
             下载标讯
           </Button>
         </div>
       </div>
       <BidFilters onChange={setFilters} />
-      <BidListTable filters={filters} selectedIds={selectedIds} onSelectionChange={setSelectedIds} />
-
-      {/* Batch Assign Modal */}
-      <Modal open={showBatchAssign} onClose={() => { setShowBatchAssign(false); setBatchItcode('') }} title="批量分配标讯" footer={
-        <>
-          <Button variant="secondary" onClick={() => { setShowBatchAssign(false); setBatchItcode('') }}>取消</Button>
-          <Button onClick={handleBatchAssign} loading={batchAssignMutation.isPending} disabled={!batchItcode.trim()}>
-            确认分配 ({selectedIds.length} 条)
-          </Button>
-        </>
-      }>
-        <div className="space-y-4">
-          <div className="text-sm text-slate-600">
-            已选择 <span className="font-semibold text-indigo-700">{selectedIds.length}</span> 条标讯，请输入客户经理ITCode进行分配。
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-slate-500 mb-1">客户经理 ITCode</label>
-            <input
-              type="text"
-              value={batchItcode}
-              onChange={e => setBatchItcode(e.target.value)}
-              placeholder="请输入ITCode..."
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-            />
-          </div>
-        </div>
-      </Modal>
+      <BidListTable
+        filters={{
+          ...filters,
+          ...(user?.role === 'PRODUCT_MGR' ? { productManagerId: user.id } : {}),
+        }}
+        selectedIds={selectedIds}
+        onSelectionChange={setSelectedIds}
+      />
 
       {/* Upload Modal */}
       <Modal open={showUpload} onClose={closeUploadModal} title="上传标讯" width="max-w-xl">

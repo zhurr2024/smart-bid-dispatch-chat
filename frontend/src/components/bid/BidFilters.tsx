@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { Search, SlidersHorizontal } from 'lucide-react'
 import { Select } from '@/components/ui/Select'
+import { useAuthStore } from '@/stores/authStore'
+import { mockProductKeywordMappings } from '@/mocks/data/products'
 
 interface BidFiltersProps {
   onChange: (filters: Record<string, string>) => void
@@ -44,6 +46,13 @@ const TENDER_TYPES = [
 
 export const BidFilters: React.FC<BidFiltersProps> = ({ onChange }) => {
   const [filters, setFilters] = useState<Record<string, string>>({})
+  const user = useAuthStore(s => s.user)
+  const isPM = user?.role === 'PRODUCT_MGR'
+
+  // Products owned by this PM
+  const pmProducts = isPM
+    ? mockProductKeywordMappings.filter(p => p.productManagerId === user.id)
+    : []
 
   const set = (key: string) => (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
     const updated = { ...filters, [key]: e.target.value }
@@ -76,6 +85,14 @@ export const BidFilters: React.FC<BidFiltersProps> = ({ onChange }) => {
       <Select placeholder="全部BU" options={BID_TYPES} onChange={set('bidType')} className="text-sm py-1.5" />
       <Select placeholder="全部招标类型" options={TENDER_TYPES} onChange={set('tenderType')} className="text-sm py-1.5" />
       <Select placeholder="全部状态" options={STATUSES} onChange={set('status')} className="text-sm py-1.5" />
+      {isPM && pmProducts.length > 0 && (
+        <Select
+          placeholder="全部关联产品"
+          options={pmProducts.map(p => ({ value: p.productName, label: p.productName }))}
+          onChange={set('productName')}
+          className="text-sm py-1.5"
+        />
+      )}
     </div>
   )
 }

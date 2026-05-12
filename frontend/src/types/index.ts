@@ -1,4 +1,4 @@
-export type UserRole = 'HQ_OPS' | 'TEAM_LEADER' | 'SALES_ADMIN' | 'AR'
+export type UserRole = 'HQ_OPS' | 'TEAM_LEADER' | 'SALES_ADMIN' | 'AR' | 'PRODUCT_MGR'
 export type BidType = 'ISG' | 'SSG'
 export type TenderType = 'INTENT' | 'FORMAL'
 export type Priority = 'HIGH' | 'MEDIUM' | 'LOW'
@@ -51,9 +51,27 @@ export interface Bid {
   assignedTo?: string
   assignedToUser?: User
   isRead?: boolean
+  matchedProducts?: MatchedProduct[]
   createdBy: string
   createdAt: string
   updatedAt: string
+}
+
+export interface ProductKeywordMapping {
+  id: string
+  productName: string
+  productManager: string
+  productManagerId: string
+  keywords: string[]
+}
+
+export interface MatchedProduct {
+  productName: string
+  productManager: string
+  productManagerId: string
+  matchedKeywords: string[]
+  arName?: string
+  arItcode?: string
 }
 
 export interface TrackRecord {

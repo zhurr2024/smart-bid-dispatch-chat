@@ -114,4 +114,5 @@ const roleLabel: Record<string, string> = {
   TEAM_LEADER: '纵队Leader',
   SALES_ADMIN: '销管',
   AR: '客户经理',
+  PRODUCT_MGR: '产品经理',
 }

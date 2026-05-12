@@ -76,4 +76,18 @@ export const mockUsers: User[] = [
     team: '华北纵队',
     isActive: true,
   },
+  {
+    id: 'user-pm-001',
+    name: '周产品',
+    email: 'zhou.pm@company.com',
+    role: 'PRODUCT_MGR',
+    isActive: true,
+  },
+  {
+    id: 'user-pm-002',
+    name: '孙产品',
+    email: 'sun.pm@company.com',
+    role: 'PRODUCT_MGR',
+    isActive: true,
+  },
 ]

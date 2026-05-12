@@ -69,11 +69,11 @@ export const useExportBids = () => {
   return useMutation({
     mutationFn: (params: BidQuery) => bidService.exportBids(params),
     onSuccess: (data) => {
-      const blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+      const blob = new Blob([data], { type: 'text/csv;charset=utf-8' })
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = `标讯数据_${new Date().toISOString().slice(0, 10)}.xlsx`
+      a.download = `标讯数据_${new Date().toISOString().slice(0, 10)}.csv`
       a.click()
       URL.revokeObjectURL(url)
     },

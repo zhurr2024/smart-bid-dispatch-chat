@@ -106,6 +106,32 @@ export const BidDetailPanel: React.FC<BidDetailPanelProps> = ({ bidId }) => {
             </div>
           </div>
 
+          {/* Product Matching Info */}
+          {bid.matchedProducts && bid.matchedProducts.length > 0 && (
+            <div className="px-4 py-3 border-b border-slate-100">
+              <div className="text-xs font-medium text-slate-500 mb-2">关联产品</div>
+              <div className="space-y-2">
+                {bid.matchedProducts.map(mp => (
+                  <div key={mp.productName} className="p-2 bg-violet-50 rounded-lg border border-violet-100">
+                    <div className="text-xs font-semibold text-violet-800">{mp.productName}</div>
+                    <div className="text-xs text-violet-600 mt-0.5">产品经理：{mp.productManager}</div>
+                    {mp.arName && (
+                      <div className="text-xs text-slate-600 mt-0.5">
+                        负责销售：{mp.arName}
+                        {mp.arItcode && <span className="text-slate-400 ml-1">({mp.arItcode})</span>}
+                      </div>
+                    )}
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {mp.matchedKeywords.map(kw => (
+                        <span key={kw} className="text-xs bg-white text-violet-700 px-1.5 py-0.5 rounded border border-violet-200">{kw}</span>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Summary */}
           <div className="px-4 py-3 border-b border-slate-100">
             <div className="text-xs font-medium text-slate-500 mb-1.5">项目概述</div>

@@ -1,6 +1,7 @@
 import React from 'react'
 import { useBids } from '@/hooks/useBids'
 import { useUiStore } from '@/stores/uiStore'
+import { useAuthStore } from '@/stores/authStore'
 import { BidTypeBadge, TenderTypeBadge } from './BidTypeBadge'
 import { Spinner } from '@/components/ui/Spinner'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
@@ -19,6 +20,8 @@ export const BidListTable: React.FC<BidListTableProps> = ({ filters, selectedIds
   const [page, setPage] = React.useState(1)
   const setSelectedBidId = useUiStore(s => s.setSelectedBidId)
   const selectedBidId = useUiStore(s => s.selectedBidId)
+  const user = useAuthStore(s => s.user)
+  const isPM = user?.role === 'PRODUCT_MGR'
 
   const { data, isLoading } = useBids({ ...filters, page, pageSize: PAGE_SIZE } as any)
   const bids = data?.data || []
@@ -79,7 +82,11 @@ export const BidListTable: React.FC<BidListTableProps> = ({ filters, selectedIds
                   className="rounded border-slate-300 cursor-pointer"
                 />
               </th>
-              {['标讯编号', 'BU', '类型', '项目名称', '采购单位', '战区', '主行业', '预算(万)', '关联商机编号', '状态', '截止时间', '操作'].map(h => (
+              {[
+                '标讯编号', 'BU', '类型', '项目名称', '采购单位', '战区', '主行业', '预算(万)',
+                ...(isPM ? ['关联产品', '匹配关键词', '负责销售'] : ['关联商机编号']),
+                '状态', '截止时间', '操作',
+              ].map(h => (
                 <th key={h} className="text-left text-xs font-medium text-slate-500 px-4 py-3 whitespace-nowrap">{h}</th>
               ))}
             </tr>
@@ -128,7 +135,36 @@ export const BidListTable: React.FC<BidListTableProps> = ({ filters, selectedIds
                   <td className="px-4 py-3 text-slate-700 font-medium whitespace-nowrap">
                     {bid.budget ? bid.budget : '—'}
                   </td>
-                  <td className="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">{bid.opportunityNo || '—'}</td>
+                  {isPM ? (
+                    <>
+                      <td className="px-4 py-3 text-xs">
+                        {bid.matchedProducts && bid.matchedProducts.length > 0
+                          ? bid.matchedProducts.map(mp => (
+                              <span key={mp.productName} className="inline-block bg-violet-50 text-violet-700 px-1.5 py-0.5 rounded mr-1 mb-0.5 font-medium">{mp.productName}</span>
+                            ))
+                          : '—'}
+                      </td>
+                      <td className="px-4 py-3 text-xs text-slate-500 max-w-[160px]">
+                        {bid.matchedProducts && bid.matchedProducts.length > 0
+                          ? bid.matchedProducts.flatMap(mp => mp.matchedKeywords).map(kw => (
+                              <span key={kw} className="inline-block bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded mr-1 mb-0.5">{kw}</span>
+                            ))
+                          : '—'}
+                      </td>
+                      <td className="px-4 py-3 text-xs whitespace-nowrap">
+                        {bid.assignedToUser ? (
+                          <span className="text-slate-700">
+                            {bid.assignedToUser.name}
+                            <span className="text-slate-400 ml-1">({bid.assignedTo})</span>
+                          </span>
+                        ) : (
+                          <span className="text-slate-400">未分配</span>
+                        )}
+                      </td>
+                    </>
+                  ) : (
+                    <td className="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">{bid.opportunityNo || '—'}</td>
+                  )}
                   <td className="px-4 py-3">
                     <span className={clsx('text-xs px-2 py-0.5 rounded-full font-medium', s.cls)}>{s.label}</span>
                   </td>

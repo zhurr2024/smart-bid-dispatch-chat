@@ -3,6 +3,7 @@ import { mockBids } from '../data/bids'
 import { mockTracks } from '../data/tracks'
 import { mockUsers } from '../data/users'
 import { Bid, BidStatus, TrackRecord } from '@/types'
+import { matchBidToProducts, filterBidsForProductManager } from '@/skills/product-matching/productEngine'
 
 // In-memory mutable state
 let bids: Bid[] = [...mockBids]
@@ -22,8 +23,24 @@ export const bidHandlers = [
     const search = url.searchParams.get('search')
     const assignedTo = url.searchParams.get('assignedTo')
     const opportunityNo = url.searchParams.get('opportunityNo')
+    const productManagerId = url.searchParams.get('productManagerId')
+    const productName = url.searchParams.get('productName')
 
     let filtered = [...bids]
+
+    // If PM filter, only show bids matching their products
+    if (productManagerId) {
+      filtered = filterBidsForProductManager(filtered, productManagerId)
+    }
+
+    // Filter by specific product name
+    if (productName) {
+      filtered = filtered.filter(b => {
+        const matched = matchBidToProducts(b)
+        return matched.some(mp => mp.productName === productName)
+      })
+    }
+
     if (priority) filtered = filtered.filter(b => b.priority === priority)
     if (status) filtered = filtered.filter(b => b.status === status)
     if (bidType) filtered = filtered.filter(b => b.bidType === bidType)
@@ -45,7 +62,12 @@ export const bidHandlers = [
     }
 
     const total = filtered.length
-    const data = filtered.slice((page - 1) * pageSize, page * pageSize)
+    const sliced = filtered.slice((page - 1) * pageSize, page * pageSize)
+    // Enrich with matchedProducts
+    const data = sliced.map(b => ({
+      ...b,
+      matchedProducts: matchBidToProducts(b),
+    }))
     return HttpResponse.json({ data, total, page, pageSize })
   }),
 
@@ -88,7 +110,8 @@ export const bidHandlers = [
   http.get('/api/v1/bids/:id', ({ params }) => {
     const bid = bids.find(b => b.id === params.id)
     if (!bid) return HttpResponse.json({ message: '标讯不存在' }, { status: 404 })
-    return HttpResponse.json(bid)
+    const enriched = { ...bid, matchedProducts: matchBidToProducts(bid) }
+    return HttpResponse.json(enriched)
   }),
 
   http.put('/api/v1/bids/:id/read', ({ params }) => {

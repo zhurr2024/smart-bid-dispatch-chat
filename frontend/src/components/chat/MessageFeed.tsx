@@ -16,6 +16,7 @@ const ROLE_DESC: Record<UserRole, string> = {
   SALES_ADMIN: '您可以手工分配标讯、查看跟进状态',
   AR: '查看分配给您的标讯，及时反馈跟进',
   TEAM_LEADER: '查看本纵队标讯全貌',
+  PRODUCT_MGR: '查看与您负责产品关联的标讯及销售跟进',
 }
 
 const WELCOME_CHIPS = ['🔴 高优标讯', '📋 待分配', '📅 今日新增', '⏰ 即将截止']

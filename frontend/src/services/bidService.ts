@@ -13,6 +13,8 @@ export interface BidQuery {
   search?: string
   assignedTo?: string
   opportunityNo?: string
+  productManagerId?: string
+  productName?: string
 }
 
 export const bidService = {

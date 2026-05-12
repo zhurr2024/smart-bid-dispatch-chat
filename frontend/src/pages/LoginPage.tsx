@@ -28,6 +28,13 @@ const DEMO_USERS = [
     iconBg: 'linear-gradient(135deg, #10b981, #059669)',
   },
   {
+    label: '产品经理',
+    desc: '查看产品关联标讯及销售跟进',
+    email: 'zhou.pm@company.com',
+    icon: '产',
+    iconBg: 'linear-gradient(135deg, #8b5cf6, #7c3aed)',
+  },
+  {
     label: '纵队Leader',
     desc: '查看和下载标讯',
     email: 'li.tl@company.com',
