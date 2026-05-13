@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Upload, Download, FileDown, Send } from 'lucide-react'
+import { Upload, Download, FileDown, Send, UserCheck } from 'lucide-react'
 import { BidFilters } from '@/components/bid/BidFilters'
 import { BidListTable } from '@/components/bid/BidListTable'
 import { Button } from '@/components/ui/Button'
@@ -7,7 +7,7 @@ import { Modal } from '@/components/ui/Modal'
 import { UploadDropzone } from '@/components/upload/UploadDropzone'
 import { UploadPreview } from '@/components/upload/UploadPreview'
 import { useAuthStore } from '@/stores/authStore'
-import { useExportBids, useDispatchBids } from '@/hooks/useBids'
+import { useExportBids, useDispatchBids, useBatchAssignBids } from '@/hooks/useBids'
 import { BidQuery } from '@/services/bidService'
 
 export default function BidsPage() {
@@ -17,14 +17,25 @@ export default function BidsPage() {
   const [uploading, setUploading] = useState(false)
   const [uploadSuccess, setUploadSuccess] = useState(false)
   const [selectedIds, setSelectedIds] = useState<string[]>([])
+  const [showBatchAssign, setShowBatchAssign] = useState(false)
+  const [batchItcode, setBatchItcode] = useState('')
   const user = useAuthStore(s => s.user)
   const exportMutation = useExportBids()
   const dispatchMutation = useDispatchBids()
+  const batchAssignMutation = useBatchAssignBids()
 
   const handleDispatch = async () => {
     if (!selectedIds.length) return
     await dispatchMutation.mutateAsync(selectedIds)
     setSelectedIds([])
+  }
+
+  const handleBatchAssign = async () => {
+    if (!selectedIds.length || !batchItcode.trim()) return
+    await batchAssignMutation.mutateAsync({ ids: selectedIds, itcode: batchItcode.trim() })
+    setSelectedIds([])
+    setBatchItcode('')
+    setShowBatchAssign(false)
   }
 
   const handleUpload = async () => {
@@ -90,6 +101,17 @@ export default function BidsPage() {
               </Button>
             </>
           )}
+          {user?.role === 'SALES_ADMIN' && (
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => setShowBatchAssign(true)}
+              disabled={selectedIds.length === 0}
+            >
+              <UserCheck size={14} />
+              批量分配{selectedIds.length > 0 && `(${selectedIds.length})`}
+            </Button>
+          )}
           <Button size="sm" onClick={handleDownload} loading={exportMutation.isPending}>
             <Download size={14} />
             下载标讯
@@ -137,6 +159,36 @@ export default function BidsPage() {
               )}
             </>
           )}
+        </div>
+      </Modal>
+
+      {/* Batch Assign Modal (SALES_ADMIN) */}
+      <Modal
+        open={showBatchAssign}
+        onClose={() => { setShowBatchAssign(false); setBatchItcode('') }}
+        title="批量分配标讯"
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => { setShowBatchAssign(false); setBatchItcode('') }}>取消</Button>
+            <Button onClick={handleBatchAssign} loading={batchAssignMutation.isPending} disabled={!batchItcode.trim()}>
+              确认分配 {selectedIds.length} 条标讯
+            </Button>
+          </>
+        }
+      >
+        <div className="space-y-3">
+          <p className="text-sm text-slate-600">已选择 <span className="font-semibold text-slate-900">{selectedIds.length}</span> 条标讯，请输入客户经理ITCode进行批量分配。</p>
+          <div>
+            <label className="block text-xs font-medium text-slate-500 mb-1">客户经理 ITCode</label>
+            <input
+              type="text"
+              value={batchItcode}
+              onChange={e => setBatchItcode(e.target.value)}
+              placeholder="请输入ITCode..."
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+            />
+            <p className="text-xs text-slate-400 mt-1">请手工输入客户经理的ITCode</p>
+          </div>
         </div>
       </Modal>
     </div>
