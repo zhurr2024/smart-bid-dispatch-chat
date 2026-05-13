@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Upload, Download, FileDown } from 'lucide-react'
+import { Upload, Download, FileDown, Send } from 'lucide-react'
 import { BidFilters } from '@/components/bid/BidFilters'
 import { BidListTable } from '@/components/bid/BidListTable'
 import { Button } from '@/components/ui/Button'
@@ -7,7 +7,7 @@ import { Modal } from '@/components/ui/Modal'
 import { UploadDropzone } from '@/components/upload/UploadDropzone'
 import { UploadPreview } from '@/components/upload/UploadPreview'
 import { useAuthStore } from '@/stores/authStore'
-import { useExportBids } from '@/hooks/useBids'
+import { useExportBids, useDispatchBids } from '@/hooks/useBids'
 import { BidQuery } from '@/services/bidService'
 
 export default function BidsPage() {
@@ -19,6 +19,13 @@ export default function BidsPage() {
   const [selectedIds, setSelectedIds] = useState<string[]>([])
   const user = useAuthStore(s => s.user)
   const exportMutation = useExportBids()
+  const dispatchMutation = useDispatchBids()
+
+  const handleDispatch = async () => {
+    if (!selectedIds.length) return
+    await dispatchMutation.mutateAsync(selectedIds)
+    setSelectedIds([])
+  }
 
   const handleUpload = async () => {
     if (!uploadRows.length) return
@@ -70,6 +77,16 @@ export default function BidsPage() {
               <Button variant="secondary" size="sm" onClick={() => setShowUpload(true)}>
                 <Upload size={14} />
                 上传标讯
+              </Button>
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={handleDispatch}
+                loading={dispatchMutation.isPending}
+                disabled={selectedIds.length === 0}
+              >
+                <Send size={14} />
+                下发标讯{selectedIds.length > 0 && `(${selectedIds.length})`}
               </Button>
             </>
           )}
