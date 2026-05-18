@@ -1,6 +1,6 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useBids } from '@/hooks/useBids'
-import { useUiStore } from '@/stores/uiStore'
 import { useAuthStore } from '@/stores/authStore'
 import { BidTypeBadge, TenderTypeBadge } from './BidTypeBadge'
 import { Spinner } from '@/components/ui/Spinner'
@@ -18,8 +18,7 @@ const PAGE_SIZE = 10
 
 export const BidListTable: React.FC<BidListTableProps> = ({ filters, selectedIds = [], onSelectionChange }) => {
   const [page, setPage] = React.useState(1)
-  const setSelectedBidId = useUiStore(s => s.setSelectedBidId)
-  const selectedBidId = useUiStore(s => s.selectedBidId)
+  const navigate = useNavigate()
   const user = useAuthStore(s => s.user)
   const isPM = user?.role === 'PRODUCT_MGR'
 
@@ -30,12 +29,12 @@ export const BidListTable: React.FC<BidListTableProps> = ({ filters, selectedIds
 
   const statusMap: Record<string, { label: string; cls: string }> = {
     UPLOADED: { label: '已上传', cls: 'bg-amber-50 text-amber-700' },
-    PENDING: { label: '待分配', cls: 'bg-slate-100 text-slate-600' },
-    ASSIGNED: { label: '已分配', cls: 'bg-blue-50 text-blue-700' },
-    RECEIVED: { label: '已接收', cls: 'bg-sky-50 text-sky-700' },
-    IN_PROGRESS: { label: '跟进中', cls: 'bg-indigo-50 text-indigo-700' },
+    PENDING: { label: '待分配', cls: 'bg-[var(--fill-2)] text-[var(--text-2)]' },
+    ASSIGNED: { label: '已分配', cls: 'bg-[var(--brand-1)] text-[var(--brand-6)]' },
+    IN_PROGRESS: { label: '跟进中', cls: 'bg-[var(--brand-1)] text-[var(--brand-7)]' },
+    LINKED_OPPORTUNITY: { label: '已关联商机', cls: 'bg-sky-50 text-sky-700' },
     OPPORTUNITY: { label: '有商机', cls: 'bg-emerald-50 text-emerald-700' },
-    NO_OPPORTUNITY: { label: '无商机', cls: 'bg-slate-100 text-slate-500' },
+    NO_OPPORTUNITY: { label: '无商机', cls: 'bg-[var(--fill-2)] text-[var(--text-3)]' },
     COMPLETED: { label: '完成', cls: 'bg-purple-50 text-purple-700' },
   }
 
@@ -71,9 +70,9 @@ export const BidListTable: React.FC<BidListTableProps> = ({ filters, selectedIds
     <div className="flex flex-col flex-1 overflow-hidden">
       <div className="flex-1 overflow-auto">
         <table className="w-full text-sm border-collapse">
-          <thead className="sticky top-0 bg-slate-50 z-10">
-            <tr className="border-b border-slate-200">
-              <th className="text-left text-xs font-medium text-slate-500 px-4 py-3 w-10">
+          <thead className="sticky top-0 bg-[var(--fill-1)] z-10">
+            <tr className="border-b border-[var(--border-2)]">
+              <th className="text-left text-xs font-medium text-[var(--text-3)] px-4 py-3 w-10">
                 <input
                   type="checkbox"
                   checked={allChecked}
@@ -85,16 +84,15 @@ export const BidListTable: React.FC<BidListTableProps> = ({ filters, selectedIds
               {[
                 '标讯编号', 'BU', '类型', '项目名称', '采购单位', '战区', '主行业', '预算(万)',
                 ...(isPM ? ['关联产品', '匹配关键词', '负责销售'] : ['关联商机编号']),
-                '状态', '截止时间', '操作',
+                '状态', '采购截止时间', '操作',
               ].map(h => (
-                <th key={h} className="text-left text-xs font-medium text-slate-500 px-4 py-3 whitespace-nowrap">{h}</th>
+                <th key={h} className="text-left text-xs font-medium text-[var(--text-3)] px-4 py-3 whitespace-nowrap">{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {bids.map(bid => {
               const s = statusMap[bid.status] || { label: bid.status, cls: 'bg-slate-100 text-slate-600' }
-              const isSelected = selectedBidId === bid.id
               const isChecked = selectedIds.includes(bid.id)
               const daysLeft = bid.deadlineAt
                 ? Math.floor((new Date(bid.deadlineAt).getTime() - Date.now()) / 86400000)
@@ -102,10 +100,10 @@ export const BidListTable: React.FC<BidListTableProps> = ({ filters, selectedIds
               return (
                 <tr
                   key={bid.id}
-                  onClick={() => setSelectedBidId(isSelected ? null : bid.id)}
+                  onClick={() => navigate(`/bids/${bid.id}`)}
                   className={clsx(
-                    'border-b border-slate-100 cursor-pointer transition-colors',
-                    isSelected ? 'bg-indigo-50' : 'hover:bg-slate-50'
+                    'border-b border-[var(--border-1)] cursor-pointer transition-colors',
+                    'hover:bg-[var(--brand-1)]'
                   )}
                 >
                   <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
@@ -116,23 +114,23 @@ export const BidListTable: React.FC<BidListTableProps> = ({ filters, selectedIds
                       className="rounded border-slate-300 cursor-pointer"
                     />
                   </td>
-                  <td className="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">{bid.bidNo}</td>
+                  <td className="px-4 py-3 text-xs text-[var(--text-3)] whitespace-nowrap">{bid.bidNo}</td>
                   <td className="px-4 py-3"><BidTypeBadge bidType={bid.bidType} /></td>
                   <td className="px-4 py-3"><TenderTypeBadge tenderType={bid.tenderType} /></td>
                   <td className="px-4 py-3 max-w-xs">
                     <div className="flex items-center gap-1.5">
                       {bid.bidType === 'SSG' && !bid.isRead && (
-                        <span className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0" title="未读" />
+                        <span className="w-2 h-2 rounded-full bg-[var(--brand-6)] flex-shrink-0" title="未读" />
                       )}
-                      <span className="truncate font-medium text-slate-900" title={bid.projectName}>{bid.projectName}</span>
+                      <span className="truncate font-medium text-[var(--text-1)]" title={bid.projectName}>{bid.projectName}</span>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-slate-600 max-w-xs">
+                  <td className="px-4 py-3 text-[var(--text-2)] max-w-xs">
                     <div className="truncate">{bid.purchaserName}</div>
                   </td>
-                  <td className="px-4 py-3 text-slate-600 whitespace-nowrap">{bid.region}</td>
-                  <td className="px-4 py-3 text-slate-600 whitespace-nowrap">{bid.industry || '—'}</td>
-                  <td className="px-4 py-3 text-slate-700 font-medium whitespace-nowrap">
+                  <td className="px-4 py-3 text-[var(--text-2)] whitespace-nowrap">{bid.region}</td>
+                  <td className="px-4 py-3 text-[var(--text-2)] whitespace-nowrap">{bid.industry || '—'}</td>
+                  <td className="px-4 py-3 text-[var(--text-1)] font-medium whitespace-nowrap">
                     {bid.budget ? bid.budget : '—'}
                   </td>
                   {isPM ? (
@@ -144,29 +142,29 @@ export const BidListTable: React.FC<BidListTableProps> = ({ filters, selectedIds
                             ))
                           : '—'}
                       </td>
-                      <td className="px-4 py-3 text-xs text-slate-500 max-w-[160px]">
+                      <td className="px-4 py-3 text-xs text-[var(--text-3)] max-w-[160px]">
                         {bid.matchedProducts && bid.matchedProducts.length > 0
                           ? bid.matchedProducts.flatMap(mp => mp.matchedKeywords).map(kw => (
-                              <span key={kw} className="inline-block bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded mr-1 mb-0.5">{kw}</span>
+                              <span key={kw} className="inline-block bg-[var(--fill-2)] text-[var(--text-2)] px-1.5 py-0.5 rounded-[4px] mr-1 mb-0.5">{kw}</span>
                             ))
                           : '—'}
                       </td>
                       <td className="px-4 py-3 text-xs whitespace-nowrap">
                         {bid.assignedToUser ? (
-                          <span className="text-slate-700">
+                          <span className="text-[var(--text-1)]">
                             {bid.assignedToUser.name}
-                            <span className="text-slate-400 ml-1">({bid.assignedTo})</span>
+                            <span className="text-[var(--text-3)] ml-1">({bid.assignedTo})</span>
                           </span>
                         ) : (
-                          <span className="text-slate-400">未分配</span>
+                          <span className="text-[var(--text-4)]">未分配</span>
                         )}
                       </td>
                     </>
                   ) : (
-                    <td className="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">{bid.opportunityNo || '—'}</td>
+                    <td className="px-4 py-3 text-xs text-[var(--text-3)] whitespace-nowrap">{bid.opportunityNo || '—'}</td>
                   )}
                   <td className="px-4 py-3">
-                    <span className={clsx('text-xs px-2 py-0.5 rounded-full font-medium', s.cls)}>{s.label}</span>
+                    <span className={clsx('text-xs px-2 py-0.5 rounded-[4px] font-medium', s.cls)}>{s.label}</span>
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap text-xs">
                     {bid.deadlineAt ? (
@@ -178,8 +176,8 @@ export const BidListTable: React.FC<BidListTableProps> = ({ filters, selectedIds
                   </td>
                   <td className="px-4 py-3">
                     <button
-                      onClick={e => { e.stopPropagation(); setSelectedBidId(bid.id) }}
-                      className="text-xs text-indigo-600 hover:text-indigo-800 cursor-pointer font-medium"
+                      onClick={e => { e.stopPropagation(); navigate(`/bids/${bid.id}`) }}
+                      className="text-xs text-[var(--brand-6)] hover:text-[var(--brand-7)] cursor-pointer font-medium"
                     >
                       详情
                     </button>
@@ -190,18 +188,18 @@ export const BidListTable: React.FC<BidListTableProps> = ({ filters, selectedIds
           </tbody>
         </table>
         {!bids.length && (
-          <div className="text-center py-16 text-slate-400 text-sm">暂无标讯数据</div>
+          <div className="text-center py-16 text-[var(--text-3)] text-sm">暂无标讯数据</div>
         )}
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-between px-4 py-3 border-t border-slate-200 bg-white flex-shrink-0">
-        <span className="text-xs text-slate-500">共 {total} 条{selectedIds.length > 0 && `，已选 ${selectedIds.length} 条`}</span>
+      <div className="flex items-center justify-between px-4 py-3 border-t border-[var(--border-2)] bg-white flex-shrink-0">
+        <span className="text-xs text-[var(--text-3)]">共 {total} 条{selectedIds.length > 0 && `，已选 ${selectedIds.length} 条`}</span>
         <div className="flex items-center gap-2">
           <Button size="sm" variant="secondary" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}>
             <ChevronLeft size={14} />
           </Button>
-          <span className="text-xs text-slate-600">{page} / {Math.max(1, totalPages)}</span>
+          <span className="text-xs text-[var(--text-2)]">{page} / {Math.max(1, totalPages)}</span>
           <Button size="sm" variant="secondary" onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page >= totalPages}>
             <ChevronRight size={14} />
           </Button>

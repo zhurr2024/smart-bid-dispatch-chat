@@ -27,8 +27,8 @@ export const mockTracks: TrackRecord[] = [
     userId: 'user-ar-002',
     userName: '郑客经',
     action: '确认接收',
-    status: 'RECEIVED',
-    note: '已接收，准备联系客户',
+    status: 'ASSIGNED',
+    note: '已分配，准备联系客户',
     createdAt: new Date(Date.now() - 4 * 86400000).toISOString(),
   },
   {

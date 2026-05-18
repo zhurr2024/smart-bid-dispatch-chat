@@ -1,6 +1,7 @@
 import { Opportunity, OpportunityStage } from '@/types'
 
 export const STAGE_ORDER: OpportunityStage[] = [
+  'DISCOVER_NEED',
   'INITIAL_CONTACT',
   'SOLUTION_DISCUSS',
   'QUOTATION',
@@ -9,6 +10,7 @@ export const STAGE_ORDER: OpportunityStage[] = [
 ]
 
 export const STAGE_LABELS: Record<OpportunityStage, string> = {
+  DISCOVER_NEED: '发现需求',
   INITIAL_CONTACT: '初步接触',
   SOLUTION_DISCUSS: '方案沟通',
   QUOTATION: '报价阶段',
@@ -17,6 +19,7 @@ export const STAGE_LABELS: Record<OpportunityStage, string> = {
 }
 
 export const STAGE_COLORS: Record<OpportunityStage, { bg: string; text: string }> = {
+  DISCOVER_NEED: { bg: 'bg-slate-100', text: 'text-slate-600' },
   INITIAL_CONTACT: { bg: 'bg-slate-200', text: 'text-slate-700' },
   SOLUTION_DISCUSS: { bg: 'bg-blue-100', text: 'text-blue-700' },
   QUOTATION: { bg: 'bg-amber-100', text: 'text-amber-700' },

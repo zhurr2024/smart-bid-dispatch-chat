@@ -16,17 +16,17 @@ export const Button: React.FC<ButtonProps> = ({
   disabled,
   ...props
 }) => {
-  const base = 'inline-flex items-center justify-center gap-1.5 font-medium rounded-md cursor-pointer transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed'
+  const base = 'inline-flex items-center justify-center gap-1.5 font-medium rounded-[4px] cursor-pointer transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed'
   const variants = {
-    primary: 'bg-indigo-700 text-white hover:bg-indigo-800 border border-transparent',
-    secondary: 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50',
-    danger: 'bg-red-500 text-white hover:bg-red-600 border border-transparent',
-    ghost: 'bg-transparent text-slate-600 hover:bg-slate-100 border border-transparent',
+    primary: 'bg-[var(--brand-6)] text-white hover:bg-[var(--brand-5)] active:bg-[var(--brand-7)] border border-transparent',
+    secondary: 'bg-white text-[var(--text-1)] border border-[var(--border-2)] hover:bg-[var(--fill-2)] hover:border-[var(--border-3)]',
+    danger: 'bg-[var(--danger-6)] text-white hover:bg-[var(--danger-5)] active:bg-[var(--danger-7)] border border-transparent',
+    ghost: 'bg-transparent text-[var(--text-2)] hover:bg-[var(--fill-2)] border border-transparent',
   }
   const sizes = {
-    sm: 'text-xs px-2.5 py-1.5',
-    md: 'text-sm px-4 py-2',
-    lg: 'text-sm px-5 py-2.5',
+    sm: 'text-xs px-2.5 h-6 leading-none',
+    md: 'text-sm px-4 h-8 leading-none',
+    lg: 'text-base px-5 h-9 leading-none',
   }
   return (
     <button

@@ -29,10 +29,10 @@ const STATUSES = [
   { value: 'UPLOADED', label: '已上传' },
   { value: 'PENDING', label: '待分配' },
   { value: 'ASSIGNED', label: '已分配' },
-  { value: 'RECEIVED', label: '已接收' },
   { value: 'IN_PROGRESS', label: '跟进中' },
-  { value: 'OPPORTUNITY', label: '有商机' },
+  { value: 'OPPORTUNITY', label: '已创建商机' },
   { value: 'NO_OPPORTUNITY', label: '无商机' },
+  { value: 'LINKED_OPPORTUNITY', label: '已关联商机' },
   { value: 'COMPLETED', label: '完成' },
 ]
 const BID_TYPES = [
@@ -63,20 +63,20 @@ export const BidFilters: React.FC<BidFiltersProps> = ({ onChange }) => {
   }
 
   return (
-    <div className="flex items-center gap-3 p-4 bg-white border-b border-slate-200 flex-wrap">
-      <div className="flex items-center gap-2 bg-slate-100 rounded-lg px-3 py-2 min-w-48">
-        <Search size={14} className="text-slate-400" />
+    <div className="flex items-center gap-3 p-4 bg-white border-b border-[var(--border-2)] flex-wrap">
+      <div className="flex items-center gap-2 bg-[var(--fill-2)] rounded-[6px] px-3 py-2 min-w-48">
+        <Search size={14} className="text-[var(--text-3)]" />
         <input
           placeholder="搜索项目名/采购方..."
-          className="bg-transparent text-sm outline-none text-slate-900 placeholder:text-slate-400 w-full"
+          className="bg-transparent text-sm outline-none text-[var(--text-1)] placeholder:text-[var(--text-3)] w-full"
           onChange={set('search')}
         />
       </div>
-      <div className="flex items-center gap-2 bg-slate-100 rounded-lg px-3 py-2 min-w-36">
-        <Search size={14} className="text-slate-400" />
+      <div className="flex items-center gap-2 bg-[var(--fill-2)] rounded-[6px] px-3 py-2 min-w-36">
+        <Search size={14} className="text-[var(--text-3)]" />
         <input
           placeholder="关联商机编号..."
-          className="bg-transparent text-sm outline-none text-slate-900 placeholder:text-slate-400 w-full"
+          className="bg-transparent text-sm outline-none text-[var(--text-1)] placeholder:text-[var(--text-3)] w-full"
           onChange={set('opportunityNo')}
         />
       </div>

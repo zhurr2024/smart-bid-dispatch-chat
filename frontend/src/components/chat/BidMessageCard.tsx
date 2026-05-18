@@ -26,8 +26,8 @@ export const BidMessageCard: React.FC<BidMessageCardProps> = ({ bid, onStatusAct
   const deadline = getDeadlineCountdown(bid.deadlineAt)
 
   const canAssign = user && ['HQ_OPS', 'SALES_ADMIN'].includes(user.role)
-  const canReceive = user?.role === 'AR' && user.id === bid.assignedTo && bid.status === 'ASSIGNED'
-  const canTrack = user?.role === 'AR' && user.id === bid.assignedTo && bid.status === 'RECEIVED'
+  const canReceive = false // RECEIVED status removed
+  const canTrack = user?.role === 'AR' && user.id === bid.assignedTo && bid.status === 'ASSIGNED'
 
   return (
     <>
@@ -113,9 +113,7 @@ export const BidMessageCard: React.FC<BidMessageCardProps> = ({ bid, onStatusAct
               {canAssign && bid.status === 'ASSIGNED' && (
                 <Button size="sm" variant="secondary" onClick={() => setAssignOpen(true)}>重新分配</Button>
               )}
-              {canReceive && (
-                <Button size="sm" onClick={() => onStatusAction?.(bid, 'RECEIVED')}>接收标讯</Button>
-              )}
+
               {canTrack && (
                 <Button size="sm" onClick={() => onStatusAction?.(bid, 'IN_PROGRESS')}>开始跟进</Button>
               )}
@@ -142,14 +140,14 @@ export const BidMessageCard: React.FC<BidMessageCardProps> = ({ bid, onStatusAct
 }
 
 const statusMap: Record<string, { label: string; cls: string }> = {
+  UPLOADED: { label: '已上传', cls: 'bg-amber-50 text-amber-700' },
   PENDING: { label: '待分配', cls: 'bg-slate-100 text-slate-600' },
   ASSIGNED: { label: '已分配', cls: 'bg-blue-50 text-blue-700' },
-  RECEIVED: { label: '已接收', cls: 'bg-sky-50 text-sky-700' },
   IN_PROGRESS: { label: '跟进中', cls: 'bg-indigo-50 text-indigo-700' },
-  OPPORTUNITY: { label: '商机上报', cls: 'bg-purple-50 text-purple-700' },
-  WON: { label: '赢单', cls: 'bg-emerald-50 text-emerald-700' },
-  LOST: { label: '输单', cls: 'bg-red-50 text-red-700' },
-  ABANDONED: { label: '已放弃', cls: 'bg-slate-100 text-slate-400' },
+  OPPORTUNITY: { label: '已创建商机', cls: 'bg-emerald-50 text-emerald-700' },
+  NO_OPPORTUNITY: { label: '无商机', cls: 'bg-slate-100 text-slate-400' },
+  LINKED_OPPORTUNITY: { label: '已关联商机', cls: 'bg-purple-50 text-purple-700' },
+  COMPLETED: { label: '完成', cls: 'bg-purple-50 text-purple-700' },
 }
 
 const StatusChip: React.FC<{ status: string }> = ({ status }) => {

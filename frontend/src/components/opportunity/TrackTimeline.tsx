@@ -6,7 +6,7 @@ import clsx from 'clsx'
 const statusColor: Record<string, string> = {
   PENDING: 'bg-slate-300',
   ASSIGNED: 'bg-blue-400',
-  RECEIVED: 'bg-sky-500',
+  LINKED_OPPORTUNITY: 'bg-sky-500',
   IN_PROGRESS: 'bg-indigo-500',
   OPPORTUNITY: 'bg-purple-500',
   WON: 'bg-emerald-500',

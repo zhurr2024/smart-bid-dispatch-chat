@@ -94,7 +94,7 @@ export const bidHandlers = [
     }
 
     // Generate CSV content
-    const headers = ['标讯编号', '标讯类型', '招标类型', '项目名称', '采购单位', '项目地点', '战区', '预算金额(万)', '状态', '发布时间', '截止时间']
+    const headers = ['标讯编号', '标讯类型', '招标类型', '项目名称', '采购单位', '项目地点', '战区', '预算金额(万)', '状态', '采购开始时间', '采购截止时间']
     const rows = filtered.map(b => [
       b.bidNo, b.bidType, b.tenderType === 'INTENT' ? '意向招标' : '实时招标',
       b.projectName, b.purchaserName, b.location, b.region,
@@ -237,10 +237,10 @@ export const bidHandlers = [
 ]
 
 const statusActionMap: Partial<Record<BidStatus, string>> = {
-  RECEIVED: '确认接收',
-  IN_PROGRESS: '开始跟进',
-  OPPORTUNITY: '有商机',
+  IN_PROGRESS: '跟进中',
+  OPPORTUNITY: '已创建商机',
   NO_OPPORTUNITY: '无商机',
+  LINKED_OPPORTUNITY: '已关联商机',
   COMPLETED: '完成',
 }
 
@@ -248,9 +248,9 @@ const statusLabelMap: Record<string, string> = {
   UPLOADED: '已上传',
   PENDING: '待分配',
   ASSIGNED: '已分配',
-  RECEIVED: '已接收',
   IN_PROGRESS: '跟进中',
-  OPPORTUNITY: '有商机',
+  OPPORTUNITY: '已创建商机',
   NO_OPPORTUNITY: '无商机',
+  LINKED_OPPORTUNITY: '已关联商机',
   COMPLETED: '完成',
 }

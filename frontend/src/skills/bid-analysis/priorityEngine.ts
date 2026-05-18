@@ -47,8 +47,8 @@ export const PRIORITY_LABELS: Record<Priority, string> = {
 export const BID_STATUS_LABELS = {
   PENDING: '待分配',
   ASSIGNED: '已分配',
-  RECEIVED: '已接收',
   IN_PROGRESS: '跟进中',
+  LINKED_OPPORTUNITY: '已关联商机',
   OPPORTUNITY: '有商机',
   NO_OPPORTUNITY: '无商机',
   COMPLETED: '完成',

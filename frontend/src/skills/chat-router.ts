@@ -21,8 +21,8 @@ const REGIONS = ['华北', '华南', '华东', '华中', '西部', '东北', '�
 
 const STATUS_MAP: Record<string, string> = {
   '已分配': 'ASSIGNED',
-  '已接收': 'RECEIVED',
   '跟进中': 'IN_PROGRESS',
+  '已关联商机': 'LINKED_OPPORTUNITY',
   '有商机': 'OPPORTUNITY',
   '无商机': 'NO_OPPORTUNITY',
   '完成': 'COMPLETED',

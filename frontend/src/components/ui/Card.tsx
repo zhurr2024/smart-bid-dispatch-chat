@@ -12,8 +12,8 @@ export const Card: React.FC<CardProps> = ({ children, className, onClick, hovera
   <div
     onClick={onClick}
     className={clsx(
-      'bg-white rounded-lg border border-slate-200 shadow-sm',
-      hoverable && 'hover:shadow-md transition-shadow duration-200 cursor-pointer',
+      'bg-white rounded-[8px] border border-[var(--border-2)] shadow-card',
+      hoverable && 'hover:shadow-menu transition-shadow duration-200 cursor-pointer',
       className
     )}
   >

@@ -25,7 +25,7 @@ export const Sidebar: React.FC = () => {
   }
 
   const navItems = [
-    { to: '/bids', icon: FileText, label: '标讯管理', roles: null },
+    { to: '/bids', icon: FileText, label: user?.role === 'AR' ? '我的标讯' : '标讯管理', roles: null },
     {
       to: '/chat', icon: MessageSquare, label: '智能问答',
       roles: ['HQ_OPS'],
@@ -43,16 +43,16 @@ export const Sidebar: React.FC = () => {
 
   return (
     <aside className={clsx(
-      'flex flex-col bg-white border-r border-slate-200 transition-all duration-200 flex-shrink-0',
+      'flex flex-col bg-white border-r border-[var(--border-2)] transition-all duration-200 flex-shrink-0',
       collapsed ? 'w-14' : 'w-60'
     )}>
       {/* Logo */}
-      <div className="h-14 flex items-center px-4 border-b border-slate-200 gap-3">
-        <div className="w-8 h-8 bg-indigo-700 rounded-lg flex items-center justify-center flex-shrink-0">
+      <div className="h-14 flex items-center px-4 border-b border-[var(--border-2)] gap-3">
+        <div className="w-8 h-8 bg-[var(--brand-6)] rounded-[8px] flex items-center justify-center flex-shrink-0">
           <ChevronRight size={16} className="text-white" />
         </div>
         {!collapsed && (
-          <span className="font-semibold text-slate-900 text-sm leading-tight">
+          <span className="font-semibold text-[var(--text-1)] text-sm leading-tight">
             智能标讯<br />分发系统
           </span>
         )}
@@ -65,10 +65,10 @@ export const Sidebar: React.FC = () => {
             key={item.to}
             to={item.to}
             className={({ isActive }) => clsx(
-              'flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer',
+              'flex items-center gap-3 px-3 py-2 rounded-[4px] text-sm font-medium transition-colors cursor-pointer',
               isActive
-                ? 'bg-indigo-50 text-indigo-700'
-                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                ? 'bg-[var(--brand-1)] text-[var(--brand-6)]'
+                : 'text-[var(--text-2)] hover:bg-[var(--fill-2)] hover:text-[var(--text-1)]'
             )}
           >
             <item.icon size={18} className="flex-shrink-0" />
@@ -76,7 +76,7 @@ export const Sidebar: React.FC = () => {
               <span className="flex-1 flex items-center justify-between">
                 {item.label}
                 {item.to === '/bids' && pendingCount > 0 && (
-                  <span className="bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  <span className="bg-[var(--danger-6)] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                     {pendingCount > 99 ? '99+' : pendingCount}
                   </span>
                 )}
@@ -87,19 +87,19 @@ export const Sidebar: React.FC = () => {
       </nav>
 
       {/* User */}
-      <div className="border-t border-slate-200 p-3">
+      <div className="border-t border-[var(--border-2)] p-3">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0 text-indigo-700 text-sm font-semibold">
+          <div className="w-8 h-8 rounded-full bg-[var(--brand-1)] flex items-center justify-center flex-shrink-0 text-[var(--brand-6)] text-sm font-semibold">
             {user?.name?.[0] || '?'}
           </div>
           {!collapsed && (
             <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium text-slate-900 truncate">{user?.name}</div>
-              <div className="text-xs text-slate-500 truncate">{roleLabel[user?.role || '']}</div>
+              <div className="text-sm font-medium text-[var(--text-1)] truncate">{user?.name}</div>
+              <div className="text-xs text-[var(--text-3)] truncate">{roleLabel[user?.role || '']}</div>
             </div>
           )}
           {!collapsed && (
-            <button onClick={handleLogout} className="text-slate-400 hover:text-red-500 cursor-pointer transition-colors" title="退出">
+            <button onClick={handleLogout} className="text-[var(--text-4)] hover:text-[var(--danger-6)] cursor-pointer transition-colors" title="退出">
               <LogOut size={16} />
             </button>
           )}

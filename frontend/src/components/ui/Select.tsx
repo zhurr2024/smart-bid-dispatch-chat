@@ -9,11 +9,11 @@ interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
 
 export const Select: React.FC<SelectProps> = ({ label, options, placeholder, className, ...props }) => (
   <div className="flex flex-col gap-1">
-    {label && <label className="text-xs font-medium text-slate-700">{label}</label>}
+    {label && <label className="text-xs font-medium text-[var(--text-1)]">{label}</label>}
     <select
       className={clsx(
-        'border border-slate-300 rounded-md px-3 py-2 text-sm text-slate-900 bg-white',
-        'focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent cursor-pointer',
+        'border border-[var(--border-2)] rounded-[6px] px-3 py-2 text-sm text-[var(--text-1)] bg-white',
+        'focus:outline-none focus:ring-1 focus:ring-[var(--brand-6)] focus:border-[var(--brand-6)] cursor-pointer',
         className
       )}
       {...props}

@@ -51,9 +51,9 @@ export default function BidsPage() {
   }
 
   const handleDownloadTemplate = () => {
-    const headers = ['标讯编号', '标讯类型', '招标类型', '项目名称', '采购单位', '项目地点', '战区', '预算金额', '发布时间', '截止时间', '项目概述', '关键词', '信息来源']
+    const headers = ['招标类型', '信息提交时间', '战区', '省份', '城市', '主行业', '公告名称', '采购单位', '项目名称', '采购需求概况', '数量总计', '关键词', '预算金额（万元）', '预计采购开始时间', '预计采购截止时间', '采购人电话', '采购人联系人', '原始文章链接']
     const csvContent = headers.join(',') + '\n' +
-      ['ISG-2024-0001', 'ISG', '意向招标', '示例项目', '示例采购方', '广东省广州市', '华南', '500', '2024-03-01', '2024-03-15', '项目概述示例', '医疗,IT', '政府采购网'].join(',')
+      ['意向招标', '2026-05-18', '广东', '广东', '广州', '医疗卫生', '医院信息化采购', '广州市第一人民医院', '智慧园区基础设施采购', '采购服务器及存储设备', '50', '医疗,IT,服务器', '500', '2026-06-01', '2026-06-30', '020-12345678', '张先生', 'https://example.com'].join(',')
     const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
@@ -71,11 +71,11 @@ export default function BidsPage() {
 
   return (
     <div className="h-full flex flex-col">
-      <div className="px-6 py-4 bg-white border-b border-slate-200 flex-shrink-0 flex items-center justify-between">
+      <div className="px-6 py-4 bg-white border-b border-[var(--border-2)] flex-shrink-0 flex items-center justify-between">
         <div>
-          <h1 className="font-semibold text-slate-900">标讯管理</h1>
-          <p className="text-xs text-slate-500 mt-0.5">
-            {user?.role === 'PRODUCT_MGR' ? '查看与您负责产品相关的标讯及销售跟进情况' : '查看、筛选和管理全部标讯'}
+          <h1 className="font-semibold text-[var(--text-1)]">{user?.role === 'AR' ? '我的标讯' : '标讯管理'}</h1>
+          <p className="text-xs text-[var(--text-3)] mt-0.5">
+            {user?.role === 'AR' ? '查看分配给您的标讯并进行反馈' : user?.role === 'PRODUCT_MGR' ? '查看与您负责产品相关的标讯及销售跟进情况' : '查看、筛选和管理全部标讯'}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -137,7 +137,7 @@ export default function BidsPage() {
                 <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
               </div>
               <div className="font-semibold text-lg">上传成功！</div>
-              <div className="text-sm text-slate-500 mt-1">已导入 {uploadRows.length} 条标讯数据</div>
+              <div className="text-sm text-[var(--text-3)] mt-1">已导入 {uploadRows.length} 条标讯数据</div>
               <Button className="mt-5" variant="secondary" onClick={closeUploadModal}>
                 关闭
               </Button>
@@ -146,7 +146,7 @@ export default function BidsPage() {
             <>
               <UploadDropzone onData={setUploadRows} />
               {uploadRows.length > 0 && (
-                <div className="max-h-48 overflow-y-auto rounded-lg border border-slate-200">
+                <div className="max-h-48 overflow-y-auto rounded-[8px] border border-[var(--border-2)]">
                   <UploadPreview rows={uploadRows} />
                 </div>
               )}
@@ -177,17 +177,17 @@ export default function BidsPage() {
         }
       >
         <div className="space-y-3">
-          <p className="text-sm text-slate-600">已选择 <span className="font-semibold text-slate-900">{selectedIds.length}</span> 条标讯，请输入客户经理ITCode进行批量分配。</p>
+          <p className="text-sm text-[var(--text-2)]">已选择 <span className="font-semibold text-[var(--text-1)]">{selectedIds.length}</span> 条标讯，请输入客户经理ITCode进行批量分配。</p>
           <div>
-            <label className="block text-xs font-medium text-slate-500 mb-1">客户经理 ITCode</label>
+            <label className="block text-xs font-medium text-[var(--text-3)] mb-1">客户经理 ITCode</label>
             <input
               type="text"
               value={batchItcode}
               onChange={e => setBatchItcode(e.target.value)}
               placeholder="请输入ITCode..."
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+              className="w-full rounded-[6px] border border-[var(--border-2)] px-3 py-2 text-sm outline-none focus:border-[var(--brand-6)] focus:ring-1 focus:ring-[var(--brand-6)]"
             />
-            <p className="text-xs text-slate-400 mt-1">请手工输入客户经理的ITCode</p>
+            <p className="text-xs text-[var(--text-3)] mt-1">请手工输入客户经理的ITCode</p>
           </div>
         </div>
       </Modal>

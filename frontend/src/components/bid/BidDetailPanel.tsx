@@ -17,10 +17,10 @@ const STATUS_LABELS: Record<string, string> = {
   UPLOADED: '已上传',
   PENDING: '待分配',
   ASSIGNED: '已分配',
-  RECEIVED: '已接收',
   IN_PROGRESS: '跟进中',
-  OPPORTUNITY: '有商机',
+  OPPORTUNITY: '已创建商机',
   NO_OPPORTUNITY: '无商机',
+  LINKED_OPPORTUNITY: '已关联商机',
   COMPLETED: '完成',
 }
 
@@ -48,9 +48,7 @@ export const BidDetailPanel: React.FC<BidDetailPanelProps> = ({ bidId }) => {
   const isSSG = bid?.bidType === 'SSG'
   const canAssign = user?.role === 'SALES_ADMIN' && bid?.status === 'PENDING' && isISG
   const isMyBid = user?.role === 'AR' && user.id === bid?.assignedTo
-  const canReceive = isMyBid && bid?.status === 'ASSIGNED'
-  const canProgress = isMyBid && bid?.status === 'RECEIVED'
-  const canFeedback = isMyBid && bid?.status === 'IN_PROGRESS'
+  const canFeedback = isMyBid && (bid?.status === 'ASSIGNED' || bid?.status === 'IN_PROGRESS')
 
   const doStatus = async (status: BidStatus, note?: string) => {
     if (!bid) return
@@ -90,10 +88,10 @@ export const BidDetailPanel: React.FC<BidDetailPanelProps> = ({ bidId }) => {
               <DetailRow label="战区" value={bid.region} />
               {bid.industry && <DetailRow label="主行业" value={bid.industry} />}
               {bid.budget && <DetailRow label="预算金额" value={`约 ${bid.budget} 万元`} highlight />}
-              <DetailRow label="发布时间" value={new Date(bid.publishedAt).toLocaleDateString('zh-CN')} />
+              <DetailRow label="采购开始时间" value={new Date(bid.publishedAt).toLocaleDateString('zh-CN')} />
               {bid.deadlineAt && (
                 <DetailRow
-                  label="截止时间"
+                  label="采购截止时间"
                   value={new Date(bid.deadlineAt).toLocaleDateString('zh-CN')}
                   highlight={new Date(bid.deadlineAt).getTime() - Date.now() < 7 * 86400000}
                 />
@@ -151,19 +149,13 @@ export const BidDetailPanel: React.FC<BidDetailPanelProps> = ({ bidId }) => {
               {canAssign && (
                 <Button size="sm" onClick={() => setAssignOpen(true)}>分配标讯</Button>
               )}
-              {canReceive && (
-                <Button size="sm" onClick={() => doStatus('RECEIVED')}>接收标讯</Button>
-              )}
-              {canProgress && (
-                <Button size="sm" onClick={() => doStatus('IN_PROGRESS')}>开始跟进</Button>
-              )}
               {canFeedback && (
                 <>
-                  <Button size="sm" className="!bg-emerald-600 hover:!bg-emerald-700" onClick={() => doStatus('OPPORTUNITY', '有商机')}>有商机</Button>
                   <Button size="sm" variant="secondary" className="!text-slate-600" onClick={() => doStatus('NO_OPPORTUNITY', '无商机')}>无商机</Button>
+                  <Button size="sm" variant="secondary" onClick={() => doStatus('IN_PROGRESS', '跟进中')}>跟进中</Button>
                 </>
               )}
-              {isMyBid && bid.status === 'OPPORTUNITY' && (
+              {isMyBid && (bid.status === 'OPPORTUNITY' || bid.status === 'LINKED_OPPORTUNITY') && (
                 <Button size="sm" variant="secondary" onClick={() => setShowOppForm(f => !f)}>
                   {showOppForm ? '收起' : '商机详情'}
                 </Button>

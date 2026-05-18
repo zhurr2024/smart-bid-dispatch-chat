@@ -5,6 +5,7 @@ import { useAuthStore } from '@/stores/authStore'
 import { AppLayout } from '@/components/layout/AppLayout'
 import LoginPage from '@/pages/LoginPage'
 import BidsPage from '@/pages/BidsPage'
+import BidDetailPage from '@/pages/BidDetailPage'
 import ReportsPage from '@/pages/ReportsPage'
 import SettingsPage from '@/pages/SettingsPage'
 
@@ -48,6 +49,7 @@ export default function App() {
           >
             <Route index element={<Navigate to="/bids" replace />} />
             <Route path="bids" element={<BidsPage />} />
+            <Route path="bids/:id" element={<BidDetailPage />} />
             <Route
               path="chat"
               element={

@@ -10,8 +10,8 @@ export const KpiCards: React.FC<KpiCardsProps> = ({ data }) => {
       label: '本月标讯总量',
       value: data.totalBids,
       icon: FileText,
-      color: 'bg-indigo-50 text-indigo-700',
-      iconBg: 'bg-indigo-100',
+      color: 'bg-[var(--brand-1)] text-[var(--brand-6)]',
+      iconBg: 'bg-[var(--brand-2)]',
     },
     {
       label: '高优先级标讯',
@@ -42,8 +42,8 @@ export const KpiCards: React.FC<KpiCardsProps> = ({ data }) => {
   return (
     <div className="grid grid-cols-4 gap-4">
       {cards.map(c => (
-        <div key={c.label} className={`rounded-xl p-5 ${c.color} flex items-center gap-4`}>
-          <div className={`${c.iconBg} w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0`}>
+        <div key={c.label} className={`rounded-[8px] p-5 ${c.color} flex items-center gap-4`}>
+          <div className={`${c.iconBg} w-12 h-12 rounded-[8px] flex items-center justify-center flex-shrink-0`}>
             <c.icon size={22} />
           </div>
           <div>

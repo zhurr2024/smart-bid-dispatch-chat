@@ -2,7 +2,7 @@ import React from 'react'
 import { AlertCircle, CheckCircle2 } from 'lucide-react'
 import clsx from 'clsx'
 
-const REQUIRED_FIELDS = ['项目名称', '采购单位', '项目地点', '大区', '标讯类型', '招标类型', '项目概述', '发布时间']
+const REQUIRED_FIELDS = ['项目名称', '采购单位', '项目地点', '大区', '标讯类型', '招标类型', '项目概述', '采购开始时间']
 
 interface UploadPreviewProps {
   rows: Record<string, any>[]

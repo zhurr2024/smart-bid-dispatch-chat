@@ -18,9 +18,9 @@ export default function UploadPage() {
   }
 
   const handleDownloadTemplate = () => {
-    const headers = ['标讯编号', '标讯类型', '招标类型', '项目名称', '采购单位', '项目地点', '大区', '预算金额', '发布时间', '截止时间', '项目概述', '关键词', '信息来源']
+    const headers = ['标讯编号', '标讯类型', '招标类型', '项目名称', '采购单位', '项目地点', '大区', '预算金额', '采购开始时间', '采购截止时间', '项目概述', '关键词', '信息来源']
     const csvContent = headers.join(',') + '\n' +
-      ['ISG-2024-0001', 'ISG', '意向招标', '示例项目', '示例采购方', '广东省广州市', '华南', '500', '2024-03-01', '2024-03-15', '项目概述示例', '医疗,IT', '政府采购网'].join(',')
+      ['ISG-2024-0001', 'ISG', '意向招标', '示例项目', '示例采购方', '广东省广州市', '华南', '500', '2024-03-01', '2024-03-15', '项目概述示例', '医疗', '政府采购网'].join(',')
     const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
