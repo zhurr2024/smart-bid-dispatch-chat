@@ -5,6 +5,8 @@ import { useBid, useBidTracks, useUpdateBidStatus, useMarkBidRead } from '@/hook
 import { useAuthStore } from '@/stores/authStore'
 import { BidTypeBadge, TenderTypeBadge } from '@/components/bid/BidTypeBadge'
 import { TrackTimeline } from '@/components/opportunity/TrackTimeline'
+import { BidDeepThinking } from '@/components/bid/BidDeepThinking'
+import { BidHistoryCases } from '@/components/bid/BidHistoryCases'
 import { NoOpportunityModal } from '@/components/bid/NoOpportunityModal'
 import { FollowUpModal } from '@/components/bid/FollowUpModal'
 import { CreateOpportunityForm } from '@/components/bid/CreateOpportunityForm'
@@ -38,7 +40,7 @@ const STATUS_COLORS: Record<string, string> = {
   COMPLETED: 'bg-purple-50 text-purple-700 border-purple-200',
 }
 
-type TabKey = 'info' | 'track'
+type TabKey = 'info' | 'track' | 'deepThinking' | 'cases'
 
 export default function BidDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -131,6 +133,8 @@ export default function BidDetailPage() {
   const tabs: { key: TabKey; label: string }[] = [
     { key: 'info', label: '基本信息' },
     { key: 'track', label: '跟进记录' },
+    { key: 'deepThinking', label: '标讯深度思考' },
+    { key: 'cases', label: '历史案例推荐' },
   ]
 
   return (
@@ -311,6 +315,18 @@ export default function BidDetailPage() {
           <div className="bg-white rounded-[8px] shadow-card p-6 max-w-2xl">
             <h3 className="text-sm font-semibold text-[var(--text-1)] mb-4">跟进记录</h3>
             <TrackTimeline tracks={tracks} />
+          </div>
+        )}
+
+        {activeTab === 'deepThinking' && (
+          <div className="max-w-3xl">
+            <BidDeepThinking />
+          </div>
+        )}
+
+        {activeTab === 'cases' && (
+          <div className="max-w-3xl">
+            <BidHistoryCases />
           </div>
         )}
 
