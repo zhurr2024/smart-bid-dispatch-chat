@@ -52,8 +52,9 @@ export default function BidsPage() {
 
   const handleDownloadTemplate = () => {
     const headers = ['招标类型', '信息提交时间', '战区', '省份', '城市', '主行业', '公告名称', '采购单位', '项目名称', '采购需求概况', '数量总计', '关键词', '预算金额（万元）', '预计采购开始时间', '预计采购截止时间', '采购人电话', '采购人联系人', '原始文章链接']
-    const csvContent = headers.join(',') + '\n' +
-      ['意向招标', '2026-05-18', '广东', '广东', '广州', '医疗卫生', '医院信息化采购', '广州市第一人民医院', '智慧园区基础设施采购', '采购服务器及存储设备', '50', '医疗,IT,服务器', '500', '2026-06-01', '2026-06-30', '020-12345678', '张先生', 'https://example.com'].join(',')
+    const escapeCsv = (val: string) => val.includes(',') || val.includes('"') ? `"${val.replace(/"/g, '""')}"` : val
+    const sampleRow = ['意向招标', '2026-05-18', '广东', '广东', '广州', '医疗卫生', '医院信息化采购', '广州市第一人民医院', '智慧园区基础设施采购', '采购服务器及存储设备', '50', '医疗;IT;服务器', '500', '2026-06-01', '2026-06-30', '020-12345678', '张先生', 'https://example.com']
+    const csvContent = headers.map(escapeCsv).join(',') + '\n' + sampleRow.map(escapeCsv).join(',')
     const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
@@ -81,11 +82,11 @@ export default function BidsPage() {
         <div className="flex items-center gap-2">
           {user?.role === 'HQ_OPS' && (
             <>
-              <Button variant="secondary" size="sm" onClick={handleDownloadTemplate}>
+              <Button variant="secondary" size="sm" onClick={handleDownloadTemplate} disabled={selectedIds.length > 0}>
                 <FileDown size={14} />
                 下载模板
               </Button>
-              <Button variant="secondary" size="sm" onClick={() => setShowUpload(true)}>
+              <Button variant="secondary" size="sm" onClick={() => setShowUpload(true)} disabled={selectedIds.length > 0}>
                 <Upload size={14} />
                 上传标讯
               </Button>

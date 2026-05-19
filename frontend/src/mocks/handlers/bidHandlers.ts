@@ -94,14 +94,38 @@ export const bidHandlers = [
     }
 
     // Generate CSV content
-    const headers = ['标讯编号', '标讯类型', '招标类型', '项目名称', '采购单位', '项目地点', '战区', '预算金额(万)', '状态', '采购开始时间', '采购截止时间']
-    const rows = filtered.map(b => [
-      b.bidNo, b.bidType, b.tenderType === 'INTENT' ? '意向招标' : '实时招标',
-      b.projectName, b.purchaserName, b.location, b.region,
-      b.budget?.toString() || '', statusLabelMap[b.status] || b.status,
-      b.publishedAt.slice(0, 10), b.deadlineAt?.slice(0, 10) || ''
-    ])
-    const csv = '\uFEFF' + [headers, ...rows].map(r => r.join(',')).join('\n')
+    const escapeCsv = (val: string) => val.includes(',') || val.includes('"') ? `"${val.replace(/"/g, '""')}"` : val
+    const headers = ['标讯编号', '招标类型', '信息提交时间', '战区', '省份', '城市', '主行业', '公告名称', '采购单位', '项目名称', '采购需求概况', '数量总计', '关键词', '预算金额（万元）', '预计采购开始时间', '预计采购截止时间', '采购人电话', '采购人联系人', '原始文章链接', '标讯是否真实(ISG产品）', '商机编号', '未反馈商机编号原因', '关联产品', '负责人（itcode）']
+    const rows = filtered.map(b => {
+      const products = matchBidToProducts(b)
+      return [
+        b.bidNo,
+        b.tenderType === 'INTENT' ? '意向招标' : '实时招标',
+        b.createdAt.slice(0, 10),
+        b.region,
+        b.province || '',
+        b.city || '',
+        b.industry || '',
+        b.projectName,
+        b.purchaserName,
+        b.projectName,
+        b.summary || '',
+        '',
+        (b.keywords || []).join(';'),
+        b.budget?.toString() || '',
+        b.publishedAt.slice(0, 10),
+        b.deadlineAt?.slice(0, 10) || '',
+        '',
+        '',
+        b.sourceUrl || '',
+        b.isRealBid === true ? '是' : b.isRealBid === false ? '否' : '',
+        b.opportunityNo || '',
+        b.noOpportunityReason || '',
+        products.map(p => p.productName).join(';'),
+        b.assignedTo || '',
+      ]
+    })
+    const csv = '\uFEFF' + [headers, ...rows].map(r => r.map(escapeCsv).join(',')).join('\n')
     return new HttpResponse(csv, {
       headers: { 'Content-Type': 'text/csv;charset=utf-8', 'Content-Disposition': 'attachment; filename=bids.csv' },
     })

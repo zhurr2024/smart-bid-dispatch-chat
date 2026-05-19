@@ -58,6 +58,8 @@ export interface Bid {
   summary: string
   keywords?: string[]
   source?: string
+  sourceUrl?: string
+  cdbid?: string
   priority: Priority
   opportunityNo?: string
   status: BidStatus

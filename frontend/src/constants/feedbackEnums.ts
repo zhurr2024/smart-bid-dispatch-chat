@@ -140,6 +140,7 @@ export const UPLOAD_TEMPLATE_FIELDS = [
 
 /** 下载模板字段 */
 export const DOWNLOAD_TEMPLATE_FIELDS = [
+  '标讯编号',
   '招标类型',
   '信息提交时间',
   '战区',
@@ -161,7 +162,5 @@ export const DOWNLOAD_TEMPLATE_FIELDS = [
   '标讯是否真实(ISG产品）',
   '商机编号',
   '未反馈商机编号原因',
-  '关联产品',
   '负责人（itcode）',
-  '导出时间',
 ]

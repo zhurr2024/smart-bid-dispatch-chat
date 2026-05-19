@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Link2, PlusCircle, XCircle, Clock, CheckCircle } from 'lucide-react'
+import { ArrowLeft, Link2, PlusCircle, XCircle, Clock, CheckCircle, ExternalLink } from 'lucide-react'
 import { useBid, useBidTracks, useUpdateBidStatus, useMarkBidRead } from '@/hooks/useBids'
 import { useAuthStore } from '@/stores/authStore'
 import { BidTypeBadge, TenderTypeBadge } from '@/components/bid/BidTypeBadge'
@@ -258,6 +258,7 @@ export default function BidDetailPage() {
                 {bid.assignedToUser && <InfoRow label="负责人" value={bid.assignedToUser.name} />}
                 {bid.opportunityNo && <InfoRow label="商机编号" value={bid.opportunityNo} />}
                 <InfoRow label="是否高价值" value={bid.isHighValue === true ? '是' : bid.isHighValue === false ? '否' : '未标记'} />
+                <InfoRow label="CDBID" value={bid.cdbid || '暂无'} />
                 {bid.isRealBid !== undefined && bid.isRealBid !== null && (
                   <InfoRow label="ISG产品" value={bid.isRealBid ? '是' : '否'} />
                 )}
@@ -308,6 +309,25 @@ export default function BidDetailPage() {
                 </div>
               </div>
             )}
+
+            {/* 原始公告 */}
+            <div className="bg-white rounded-[8px] shadow-card p-6 lg:col-span-2">
+              <h3 className="text-sm font-semibold text-[var(--text-1)] mb-4">原始公告</h3>
+              {bid.sourceUrl ? (
+                <a
+                  href={bid.sourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-sm text-[var(--brand-6)] hover:text-[var(--brand-7)] transition-colors"
+                >
+                  <ExternalLink size={16} />
+                  <span>查看原始公告</span>
+                  <span className="text-xs text-[var(--text-3)]">（来源：{bid.source || '未知'}）</span>
+                </a>
+              ) : (
+                <p className="text-sm text-[var(--text-3)]">暂无原始公告链接</p>
+              )}
+            </div>
           </div>
         )}
 
