@@ -54,6 +54,15 @@ export const BidDeepThinking: React.FC = () => {
             <Legend color="bg-amber-500" label="SSG" />
           </div>
           <div className="flex items-end gap-6 h-32 px-2">
+            {/* Y-axis labels */}
+            <div className="flex flex-col justify-between h-[100px] text-xs text-[var(--text-3)] text-right pr-1 w-12 shrink-0">
+              <span>12,000</span>
+              <span>9,600</span>
+              <span>7,200</span>
+              <span>4,800</span>
+              <span>2,400</span>
+              <span>0</span>
+            </div>
             <BarGroup label="FY2023" rel={10000} isg={2000} ssg={1500} max={12000} />
             <BarGroup label="FY2024" rel={11000} isg={2000} ssg={1500} max={12000} />
             <BarGroup label="FY2025" rel={12000} isg={2000} ssg={1500} max={12000} />
@@ -145,10 +154,10 @@ const Legend: React.FC<{ color: string; label: string }> = ({ color, label }) =>
 
 const BarGroup: React.FC<{ label: string; rel: number; isg: number; ssg: number; max: number }> = ({ label, rel, isg, ssg, max }) => (
   <div className="flex-1 flex flex-col items-center gap-1">
-    <div className="w-full flex flex-col items-center gap-0.5" style={{ height: '100px' }}>
-      <div className="w-8 bg-blue-500 rounded-t-sm" style={{ height: `${(rel / max) * 100}%` }} title={`REL: ${rel}`} />
-      <div className="w-8 bg-emerald-500 rounded-t-sm" style={{ height: `${(isg / max) * 100}%` }} title={`ISG: ${isg}`} />
-      <div className="w-8 bg-amber-500 rounded-t-sm" style={{ height: `${(ssg / max) * 100}%` }} title={`SSG: ${ssg}`} />
+    <div className="flex items-end gap-1 justify-center" style={{ height: '100px' }}>
+      <div className="w-5 bg-blue-500 rounded-t-sm" style={{ height: `${(rel / max) * 100}%` }} title={`REL: ${rel}`} />
+      <div className="w-5 bg-emerald-500 rounded-t-sm" style={{ height: `${(isg / max) * 100}%` }} title={`ISG: ${isg}`} />
+      <div className="w-5 bg-amber-500 rounded-t-sm" style={{ height: `${(ssg / max) * 100}%` }} title={`SSG: ${ssg}`} />
     </div>
     <span className="text-xs text-[var(--text-3)]">{label}</span>
   </div>
