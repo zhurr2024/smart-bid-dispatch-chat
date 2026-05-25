@@ -8,12 +8,12 @@ import { TrackTimeline } from '@/components/opportunity/TrackTimeline'
 import { BidDeepThinking } from '@/components/bid/BidDeepThinking'
 import { BidHistoryCases } from '@/components/bid/BidHistoryCases'
 import { NoOpportunityModal } from '@/components/bid/NoOpportunityModal'
+import { LinkOpportunityModal } from '@/components/bid/LinkOpportunityModal'
 import { FollowUpModal } from '@/components/bid/FollowUpModal'
 import { CreateOpportunityForm } from '@/components/bid/CreateOpportunityForm'
 import { Button } from '@/components/ui/Button'
 import { DispatchModal } from '@/components/bid/DispatchModal'
 import { Spinner } from '@/components/ui/Spinner'
-import { Input } from '@/components/ui/Input'
 import { BidStatus } from '@/types'
 import { IS_REAL_BID_OPTIONS, HIGH_VALUE_OPTIONS, FEEDBACK_STATUS_LABELS } from '@/constants/feedbackEnums'
 import clsx from 'clsx'
@@ -57,8 +57,7 @@ export default function BidDetailPage() {
   const [noOppOpen, setNoOppOpen] = useState(false)
   const [followUpOpen, setFollowUpOpen] = useState(false)
   const [createOppOpen, setCreateOppOpen] = useState(false)
-  const [linkOppNo, setLinkOppNo] = useState('')
-  const [showLinkOppInput, setShowLinkOppInput] = useState(false)
+  const [linkOppOpen, setLinkOppOpen] = useState(false)
 
   useEffect(() => {
     if (bid && bid.bidType === 'SSG' && !bid.isRead) {
@@ -93,10 +92,11 @@ export default function BidDetailPage() {
     })
   }
 
-  const handleNoOpportunity = async (reason: string, note: string) => {
+  const handleNoOpportunity = async (reason: string, note: string, hasIsgProduct: string) => {
     if (!bid) return
-    const fullNote = note ? `${reason}：${note}` : reason
-    await updateStatus.mutateAsync({ id: bid.id, status: 'NO_OPPORTUNITY', note: `无商机 - ${fullNote}` })
+    const isgInfo = `是否有ISG产品：${hasIsgProduct === 'YES' ? '是' : '否'}`
+    const fullNote = note ? `${reason}（${note}）` : reason
+    await updateStatus.mutateAsync({ id: bid.id, status: 'NO_OPPORTUNITY', note: `无商机 - ${isgInfo} - ${fullNote}` })
   }
 
   const handleFollowUp = async (remark: string) => {
@@ -104,11 +104,9 @@ export default function BidDetailPage() {
     await updateStatus.mutateAsync({ id: bid.id, status: 'IN_PROGRESS', note: remark })
   }
 
-  const handleLinkOpportunity = async () => {
-    if (!bid || !linkOppNo.trim()) return
-    await updateStatus.mutateAsync({ id: bid.id, status: 'LINKED_OPPORTUNITY' as BidStatus, note: `关联商机编号：${linkOppNo.trim()}` })
-    setLinkOppNo('')
-    setShowLinkOppInput(false)
+  const handleLinkOpportunity = async (opportunityNo: string) => {
+    if (!bid) return
+    await updateStatus.mutateAsync({ id: bid.id, status: 'LINKED_OPPORTUNITY' as BidStatus, note: `关联商机编号：${opportunityNo}` })
   }
   if (isLoading) {
     return (
@@ -172,7 +170,7 @@ export default function BidDetailPage() {
                 <XCircle size={14} />
                 无商机
               </Button>
-              <Button size="sm" variant="secondary" onClick={() => setShowLinkOppInput(true)}>
+              <Button size="sm" variant="secondary" onClick={() => setLinkOppOpen(true)}>
                 <Link2 size={14} />
                 关联商机
               </Button>
@@ -190,25 +188,6 @@ export default function BidDetailPage() {
 
         </div>
 
-        {/* 关联商机输入 */}
-        {showLinkOppInput && (
-          <div className="flex items-end gap-2 mt-3 p-3 bg-[var(--fill-1)] rounded-[6px]">
-            <div className="flex-1">
-              <Input
-                label="商机编号"
-                value={linkOppNo}
-                onChange={(e) => setLinkOppNo(e.target.value)}
-                placeholder="请输入已有商机编号..."
-              />
-            </div>
-            <Button size="sm" onClick={handleLinkOpportunity} disabled={!linkOppNo.trim()}>
-              确认关联
-            </Button>
-            <Button size="sm" variant="secondary" onClick={() => { setShowLinkOppInput(false); setLinkOppNo('') }}>
-              取消
-            </Button>
-          </div>
-        )}
       </div>
 
       {/* Tabs */}
@@ -358,6 +337,11 @@ export default function BidDetailPage() {
         open={noOppOpen}
         onClose={() => setNoOppOpen(false)}
         onConfirm={handleNoOpportunity}
+      />
+      <LinkOpportunityModal
+        open={linkOppOpen}
+        onClose={() => setLinkOppOpen(false)}
+        onConfirm={handleLinkOpportunity}
       />
       <FollowUpModal
         open={followUpOpen}

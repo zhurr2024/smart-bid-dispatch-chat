@@ -2,20 +2,15 @@
  * 标讯反馈流程相关枚举值和常量
  */
 
-/** 无商机原因预置选项 */
+/** 无商机原因预置选项（7项，单选） */
 export const NO_OPPORTUNITY_REASONS = [
-  { value: 'DEMAND_MISMATCH', label: '需求不匹配' },
-  { value: 'BUDGET_INSUFFICIENT', label: '客户预算不足' },
-  { value: 'TIMING_WRONG', label: '采购时间不合适' },
-  { value: 'COMPETITOR_OCCUPIED', label: '竞争对手已占领' },
-  { value: 'HAS_SUPPLIER', label: '客户已有合作供应商' },
-  { value: 'CAPABILITY_LACKING', label: '我方能力不足' },
-  { value: 'CANNOT_CONTACT', label: '无法联系客户' },
-  { value: 'POLICY_RISK', label: '风险或政策因素' },
-  { value: 'MARKET_CHANGE', label: '市场环境变化' },
-  { value: 'NEED_UNCLEAR', label: '客户暂未明确需求' },
-  { value: 'PROJECT_SUSPENDED', label: '项目暂停取消' },
-  { value: 'OTHER', label: '其他' },
+  { value: 'NO_ISG_DEMAND', label: '无 ISG 需求' },
+  { value: 'PRODUCT_PARAM_MISMATCH', label: '产品 / 参数不匹配' },
+  { value: 'NO_PARAM_PROVIDED', label: '客户暂未提供参数要求' },
+  { value: 'COMPETITOR_FACTOR', label: '友商竞争因素' },
+  { value: 'PROJECT_SUSPENDED', label: '项目暂停、取消或时机不对' },
+  { value: 'EXTERNAL_FACTOR', label: '外部环境政策、市场等不可控因素' },
+  { value: 'OTHER', label: '其他原因' },
 ] as const
 
 /** 事业部选项 */
@@ -162,5 +157,6 @@ export const DOWNLOAD_TEMPLATE_FIELDS = [
   '标讯是否真实(ISG产品）',
   '商机编号',
   '未反馈商机编号原因',
+  '关联产品',
   '负责人（itcode）',
 ]
